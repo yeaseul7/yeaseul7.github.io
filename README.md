@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>Jewelry Dev Blog</h1>
+  <h1>Ssaong Dev Blog</h1>
 </div>
 
 :::note
