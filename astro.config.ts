@@ -83,8 +83,7 @@ export default defineConfig({
     mdx(),
     sitemap(),
   ],
-  site: "https://yeaseul7.github.io",
-  base: "/ssaong_dev_blog/",
+  site: "https://yeaseul7.github.io/",
   trailingSlash: "always",
   outDir: "docs",
 });
