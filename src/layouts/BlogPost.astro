@@ -1,0 +1,69 @@
+---
+import type { MarkdownLayoutProps } from "astro";
+
+type Props = MarkdownLayoutProps<{
+  // Define frontmatter props here
+  title: string;
+  nocomment: boolean;
+}>;
+const {
+  frontmatter: { title, nocomment },
+} = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site).toString();
+---
+
+<html lang="ko">
+  <head>
+    <title>{title}</title>
+    <link rel="canonical" href={canonical} />
+    <!-- 
+    Google tag (gtag.js) 
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-DTQHPNHDDN"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+
+      gtag("config", "G-DTQHPNHDDN");
+    </script>
+    <meta name="google-adsense-account" content="ca-pub-3760441216253528" />
+    <script
+      async
+      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3760441216253528"
+      crossorigin="anonymous"></script>
+      -->
+  </head>
+
+  <body>
+    <main>
+      <article>
+        <slot />
+      </article>
+      {
+        nocomment ? null : (
+          <div id="comments" class="comments">
+            <script
+              is:inline
+              set:html={`
+                (function() {
+                  var script = document.createElement('script');
+                  script.src = 'https://utteranc.es/client.js';
+                  script.setAttribute('repo', 'yeaseul7/yeaseul7.github.io');
+                  script.setAttribute('issue-term', ${JSON.stringify(title)});
+                  script.setAttribute('label', 'comments');
+                  script.setAttribute('theme', 'preferred-color-scheme');
+                  script.crossOrigin = 'anonymous';
+                  script.async = true;
+                  document.currentScript.parentElement.appendChild(script);
+                })();
+              `}
+            />
+          </div>
+        )
+      }
+    </main>
+  </body>
+</html>
