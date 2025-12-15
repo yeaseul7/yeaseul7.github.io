@@ -23,22 +23,19 @@ const canonical = new URL(Astro.url.pathname, Astro.site).toString();
     {description && <meta property="og:description" content={description} />}
     <meta property="og:url" content={canonical} />
     {ogImage && <meta property="og:image" content={ogImage} />}
-    <!-- 
-    Google tag (gtag.js) 
+    <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-CZD8XP5VE0"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-CZD8XP5VE0');
-</script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-CZD8XP5VE0');
+    </script>
     <meta name="google-adsense-account" content="ca-pub-3760441216253528" />
     <script
       async
       src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3760441216253528"
       crossorigin="anonymous"></script>
-      -->
   </head>
 
   <body>
