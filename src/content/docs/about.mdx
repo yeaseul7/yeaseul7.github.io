@@ -4,52 +4,92 @@ layout: ../../layouts/BlogPost.astro
 nocomment: true
 ---
 
+import ContactLink from "../../components/ContactLink";
+
 ### Hello, Welcome to Ssaong 👋🏻
 
-안녈하세요, Frontend 개발자 이예슬입니다.
+안녕하세요, 부족함에 좌절하기보다 나아가는 프론트엔드 개발자 이예슬입니다.
 
-부족에 좌절하기보다 나아가는 발판으로 삼으며 항상 개선하고자 노력하는 프론트엔드 개발자 이예슬입니다.
+<ContactLink
+  client:load
+  type="github"
+  url="https://github.com/yeaseul7"
+  label="Github"
+/>
 
-- React, .net을 이용해 CRM 프레임워크를 구축한 경험이 있습니다.
-- 사용자에게 유쾌하고 편리한 서비스를 제공하고자 개발자가 되었습니다.
-- 사용자가 서비스를 사용하면서 불편함 없이 아쉬움은 금방 해결되는 눈길을 확끄는 서비스를 만드는 것이 목표입니다.
-- 부족함을 개선하기 위해 [블로그](https://yeaseul7.github.io/)를 개설하여 직접 운영하고있습니다.
+<ContactLink
+  client:load
+  type="email"
+  url="mailto:cutie32769@gmail.com"
+  label="Email"
+/>
+
+<ContactLink
+  client:load
+  type="web"
+  url="https://yeaseul7.github.io/about/"
+  label="Web"
+/>
+
+### INTRODUCE
+
+웹/앱 서비스 개발로 프론트엔드 개발을 담당하고 있는 이예슬입니다. React, Typescript, Next.js 등을 주력으로 사용하며 컴포넌트 기반 설계로
+서비스의 확장성과 유지보수성이 높은 아키택쳐를 설계합니다. CRM 개발을 하면서 복잡한 비즈니스 로직을 Custom Hook으로 분리/추상화하여 시스템의 안정성과 렌더링 성능을 동시에 확보했습니다.
+
+사용자가 자연스럽게 스며드는 서비스를 만들고자 합니다.
+개발자가 비즈니스 로직을 명확히 파악할 때 더 나은 문제 해결 방법과 사용자 경험 설계가 가능하다고 생각합니다.
+비즈니스와 기술을 잇는 통찰력을 위해 팀과 적극적으로 소통하며 함께 나아가겠습니다.
 
 ### Skill
 
 - TypeScript
+- HTML/CSS
 - Next.js
-- React
+- React.js
 - node.js
 
 ### Career
 
-#### 퀄리소프트 (2023.04~)
+#### 퀄리소프트 (2023.04 ~ 현재) | CRM Developer Team
 
-CRM Develop Team
-엔터프라이즈 고객을 위한 프로젝트 일정 및 매출/수주 데이터 통합 관리 시스템 구축
+##### 1. CRM을 활용한 DX 개선
 
-##### CRM을 활용한 DX 개선
+- SAP ERP와 CRM 간의 데이터 정합성을 확보하기 위해 Node.js 기반의 Proxy API 동기화 프로세스를 구축하였습니다.
+- 기존 엑셀의 수기 관리 방식을 React 기반 웹 시스템으로 전환하여 업무 효율성을 높이는 UI/UX를 개발하였습니다.
+- 복잡한 실적 및 매출 관련 로직을 Custom Hook으로 모듈화하여 연산 과정의 예외 케이스와 프론트엔드 오류를 방지하였습니다.
+- 팀 내 TypeScript 설정(tsconfig) 표준화를 주도하고 ESLint/Prettier 도입으로 코드 컨벤션을 통합하여 유지보수성을 향상시켰습니다.
 
-- SAP ERP와 CRM 간의 데이터 정합성 확보를 위해 Proxy API 기반의 동기화 프로세스를 구축했습니다.
-- 기존 엑셀 중심의 수기 관리 방식을 React 기반 웹 시스템으로 전환하여 업무 효율성과 UI/UX를 개선했습니다.
-- 복잡한 실적 및 매출 산정 로직을 구조화하여 연산 과정에서 발생하는 예외 케이스와 프론트엔드 오류를 원천 차단했습니다.
-- 기존에 존재하는 많은 데이터를 직접 수기로 옮기는 것이 아닌, 엑셀 다운로드 및 엑셀 업로드를 통해 휴먼 리소스를 줄이는데에 집중하였습니다.
-- 공정 과정중 필요한 첨부파일을 기존에 기업들이 사용하고 있는 sharepoint를 이용하여 업로드 하는 시스템을 구축하였습니다.
+<small> React, TypeScript, .NET, IIS </small>
 
-팀 내 TypeScript 설정(tsconfig) 표준화를 주도하고 CI/CD 프로세스를 통한 정기 배포 및 운영 이슈를 대응하였습니다.
+##### 2. 사내 휴가 관리 시스템 구축
 
-<small> React, .net, iis </small>
+수기 결재 방식의 불편함과 비효율을 해결하기 위해 기획부터 개발까지 전 과정을 주도하였습니다.
 
-##### 사내 휴가 관리 시스템 구축
+- Vue.js를 활용하여 팀원 휴가 현황을 직관적으로 파악할 수 있는 대시보드 및 커스텀 캘린더를 개발하였습니다.
+- Microsoft Teams Webhook을 연동하여 휴가 신청 및 승인/반려 알림이 실시간으로 처리되는 자동화 프로세스를 구축하였습니다.
 
-기존에 실제 달력에 수기로 휴가 날짜를 입력하고 개인의 휴가는 각자 카운팅하여 팀장님께 승인받는 형태였습니다.
-이 부분에 불편함을 느끼고 일정관리 시스템을 구축하던 중 휴가 관리도 개선이 필요하겠다고 생각하여 개선하였습니다.
+<small> Vue.js, Microsoft Teams Webhook, Power Automate </small>
 
-- Vue.js를 활용하여 팀원 휴가 현황을 시각적으로 파악할 수 있는 대시보드 및 캘린더를 개발하였습니다.
-- Microsoft Teams와 연동하여 휴가 신청 및 승인/반려 알림이 실시간으로 처리되는 자동화 프로세스를 구축하였습니다.
-- Power Automate와 CRM 워크플로우를 활용하여 휴가 발생 및 잔여 일수 차감 로직을 자동화하였습니다.
+##### 3. SharePoint 연동 첨부파일 관리 시스템 구축
 
-<small> Vue, Power Automate </small>
+- SharePoint REST API를 래핑한 첨부파일 관리 전용 Proxy 서버를 개발하였습니다.
+- 기업 내 기존 인프라인 SharePoint를 활용하여 공정 단계별 파일 업로드/다운로드 시스템을 구축하였습니다.
+- 파일 드래그 앤 드롭(DnD), 다중 파일 업로드, 진행률(Progress) 시각화 등 사용자 편의성을 고려한 UI를 구현하였습니다.
 
-#####
+<small> React, Node.js, SharePoint REST API </small>
+
+### InternShip
+
+대학생일때 학업과 병행했던 인턴십입니다.
+
+##### To-infinity (23.12 ~ 24.03)
+
+Frontend
+
+- Folaio 디자인 시스템 구축
+- Folaio Flutter 기반 앱 출시
+- 온라인 실시간 과외 서비스 어드민 개발
+
+### Experience
+
+개인 프로젝트 개발 및 활동

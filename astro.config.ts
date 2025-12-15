@@ -3,9 +3,11 @@ import { defineConfig } from "astro/config";
 import starlightThemeRapide from "starlight-theme-rapide";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
+import react from "@astrojs/react";
 
 export default defineConfig({
   integrations: [
+    react(),
     starlight({
       credits: false,
       plugins: [starlightThemeRapide()],
