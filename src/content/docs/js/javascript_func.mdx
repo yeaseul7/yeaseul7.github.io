@@ -1,21 +1,21 @@
 ---
-title: 고차함수
+title: javascript 함수
 layout: ../../../layouts/BlogPost.astro
 ---
 
-> Javascript는 함수형 프로그래밍이다.
-
-### 함수형 프로그래밍이란?
-
-단순하게 프로그래밍 패러다임 중 하나로, 불변성을 강조하며 프로그램의 상태 변경을 최소화 하는 것을 목표로 한 것이다.
-개념 자체는 수학적 함수의 개념에 기반을 두고 있다.
-불변성과 상태 변경을 최소화 한다는 것은 예측 가능성을 더 높여주는 것이라고 볼 수 있다.
-
 ### Javascript에서 함수
 
-javascript에서 `함수는 일급 객체` 이다.
-일반 객체와는 다르다.
-**일반 객체는 호출할 수 없지만 함수는 호출할 수 있다.**
+```javascript
+var f = function add(x, y) {
+  return x + y;
+};
+```
+
+위의 예제에서 알 수 있듯이 함수를 변수에 함수 리터럴을 할당했다.
+함수 리터럴도 평가되어 값을 생성하며, 이 값은 객체다.
+따라서 **함수는 객체**이다.
+
+그리고 이 객체는 호출할 수 없는 일반 객체와 다르게 호출할 수 있는 **일급객체**이다.
 
 ```jsx
 const obj = { name: "Dog" };
@@ -30,16 +30,10 @@ function greet() {
 console.log(greet()); // ✅ "Hello!"
 ```
 
-#### 일급 객체랑 일반 객체는 다른건가?
-
-> 다르다.
-
 일급 객체의 특징을 일반 객체는 모두 포함하고 있지 않다.
 관계를 표현하면 아래와 같다.
 
-```jsx
-일반 객체(Object) ⊆ 일급 객체 ⊆ 함수(Function)
-```
+> 일반 객체(Object) ⊆ 일급 객체 ⊆ 함수(Function)
 
 ### 일급객체
 
@@ -47,31 +41,26 @@ console.log(greet()); // ✅ "Hello!"
     익명 함수로 생성이 가능하다는 의미이다.
     익명 함수의 형태를 보면 런타임(할당 단계)에 생성되는 변수에 저장 하는 형태이기 때문이다.
 
-    ````jsx
+    ```jsx
     const add = function (a, b) {
-    return a + b;
+      return a + b;
     };
-
-        console.log(add(2, 3)); // ✅ 5
-        ```
-
-    ````
+    console.log(add(2, 3)); // ✅ 5
+    ```
 
 2.  변수나 자료구조(배열, 객체)에 저장할 수 있다.
     변수에 저장되는 형태는 위의 예시와 같다.
 
-    ````jsx
+    ```jsx
     const increase = function (num) {
-    return ++num;
+      return ++num;
     };
     const decrease = function (num) {
-    return --num;
+      return --num;
     };
 
-        const predicates = { increase, decrease };
-        ```
-
-    ````
+    const predicates = { increase, decrease };
+    ```
 
 3.  함수의 매개변수에 전달할 수 있다.
 

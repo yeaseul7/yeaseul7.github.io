@@ -1,0 +1,126 @@
+---
+title: Javascript의 멀티 패러다임
+layout: ../../../layouts/BlogPost.astro
+---
+
+import { Image } from "astro:assets";
+import javascriptParadigm from "../../../assets/images/javascript_paradigm/javascript_paradigm.png";
+
+> Javascript는 명령형, 함수형, 객체지향형, 프로토타입 기반을 지원하는 **멀티 패러다임 언어**이다.
+
+<Image
+  src={javascriptParadigm}
+  alt="javascript 패러다임 다이어그램"
+  widths={[640, 1280]}
+  sizes="(max-width: 640px) 100vw, 640px"
+  formats={["avif", "webp", "png"]}
+  quality={80}
+  loading="lazy"
+  decoding="async"
+/>
+### 명령형 프로그래밍이란?{" "}
+
+> 컴퓨터가 **어떻게** 작업을 할지 하나하나 지시하는 방식이다.
+
+```javascript
+const users = [
+  { name: "Kim", score: 90 },
+  { name: "Lee", score: 70 },
+  { name: "Park", score: 85 },
+];
+
+const results = []; // 상태를 담을 변수 준비
+
+// 1. 리스트를 순회한다 (어떻게 How)
+for (let i = 0; i < users.length; i++) {
+  // 2. 조건을 검사한다
+  if (users[i].score >= 80) {
+    // 3. 데이터를 변환해서 넣는다 (상태 변경)
+    results.push(users[i].name.toUpperCase());
+  }
+}
+
+console.log(results); // ["KIM", "PARK"]
+```
+
+### 객체지향형 (프로토타입 기반) 프로그래밍이란?
+
+> 데이터를 객체(Object) 단위로 묶어서 관리하는 방식. javascript에서는 중요한 키워드인 **프로토타입 체인**이 존재하는데 이것을 이해하면 좀 더 수월합니다.
+
+```javascript
+class User {
+  constructor(name, score) {
+    this.name = name;
+    this.score = score;
+  }
+
+  // 행동(Method): 합격 여부 판단
+  isPass() {
+    return this.score >= 80;
+  }
+
+  // 행동(Method): 이름 변환
+  getNameUppercased() {
+    return this.name.toUpperCase();
+  }
+}
+
+const users = [new User("Kim", 90), new User("Lee", 70), new User("Park", 85)];
+
+const results = [];
+
+for (const user of users) {
+  if (user.isPass()) {
+    // 객체에게 "너 합격이니?"라고 물어봄
+    results.push(user.getNameUppercased());
+  }
+}
+
+console.log(results); // ["KIM", "PARK"]
+```
+
+### 함수형 프로그래밍이란?
+
+단순하게 정의하자면 프로그래밍 패러다임 중 하나다.
+
+자바스크립트에서는 **불변성(Immutability)**을 지향하며 외부 상태 변경을 최소화하는 것을 목표로 한다.
+
+불변성을 지키고 상태 변경을 억제한다는 것은 **코드의 예측 가능성을 높여 오류를 줄이는 것**이다.
+복잡한 로직 내의 조건문과 반복문을 함수형 메서드(map, filter 등)로 대체하여 가독성을 높일 수 있다.
+
+#### 불변성 유지 예시
+
+자바스크립트에서 불변성을 지키는 패턴과 그렇지 않은 패턴의 차이를 살펴보자.
+
+```javascript
+// 원본 객체를 직접 수정하는 방식
+const user = { name: "Kkosunnae", age: 25 };
+
+function makeAdmin(u) {
+  u.isAdmin = true; // 원본 user 객체를 직접 변경 (Side Effect 발생)
+  return u;
+}
+
+makeAdmin(user);
+// user 객체가 오염되어, 이전 상태(일반 유저)를 알 수 없게 됨
+```
+
+```javascript
+//  함수형 프로그래밍 방식 (불변성 유지)
+const user = { name: "Kkosunnae", age: 25 };
+
+// 순수 함수: 입력값(u)을 변경하지 않고, 새로운 객체를 반환
+const makeAdmin = (u) => ({ ...u, isAdmin: true });
+
+const adminUser = makeAdmin(user);
+
+console.log(user); // { name: 'Kkosunnae', ... } -> 원본 유지 (안전)
+console.log(adminUser); // { name: 'Kkosunnae', ..., isAdmin: true } -> 새로운 데이터
+```
+
+---
+
+#### 참고자료
+
+- https://velog.io/@suwonthugger/Javascript-%EB%AA%85%EB%A0%B9%ED%98%95%EC%84%A0%EC%96%B8%ED%98%95-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%98%EB%B0%8D
+- 모던 자바스크립트 Deep Dive
