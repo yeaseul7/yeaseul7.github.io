@@ -1,0 +1,11 @@
+@layer my-reset, starlight, nextjs, my-overrides;
+
+@layer my-overrides {
+  /* Muted text utility and small tag styling */
+  .text-muted {
+    opacity: 0.7;
+  }
+  .sl-markdown-content small {
+    opacity: 0.7;
+  }
+}

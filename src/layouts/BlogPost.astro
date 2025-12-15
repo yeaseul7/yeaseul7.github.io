@@ -4,10 +4,12 @@ import type { MarkdownLayoutProps } from "astro";
 type Props = MarkdownLayoutProps<{
   // Define frontmatter props here
   title: string;
+  description?: string;
+  ogImage?: string;
   nocomment: boolean;
 }>;
 const {
-  frontmatter: { title, nocomment },
+  frontmatter: { title, description = "", ogImage, nocomment },
 } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site).toString();
 ---
@@ -16,6 +18,11 @@ const canonical = new URL(Astro.url.pathname, Astro.site).toString();
   <head>
     <title>{title}</title>
     <link rel="canonical" href={canonical} />
+    {description && <meta name="description" content={description} />}
+    <meta property="og:title" content={title} />
+    {description && <meta property="og:description" content={description} />}
+    <meta property="og:url" content={canonical} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
     <!-- 
     Google tag (gtag.js) 
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-DTQHPNHDDN"

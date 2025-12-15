@@ -20,7 +20,7 @@
     "react-dom": "^19.2.3",
     "react-icons": "^5.5.0",
     "sharp": "^0.33.5",
-    "starlight-theme-rapide": "^0.5.2"
+    "starlight-theme-next": "^0.3.3"
   },
   "engines": {
     "node": ">=18"

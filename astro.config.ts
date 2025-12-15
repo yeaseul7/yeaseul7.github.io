@@ -1,6 +1,6 @@
 import starlight from "@astrojs/starlight";
 import { defineConfig } from "astro/config";
-import starlightThemeRapide from "starlight-theme-rapide";
+import starlightThemeNext from "starlight-theme-next";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import react from "@astrojs/react";
@@ -10,7 +10,7 @@ export default defineConfig({
     react(),
     starlight({
       credits: false,
-      plugins: [starlightThemeRapide()],
+      plugins: [starlightThemeNext()],
       sidebar: [
         {
           label: "Home",
@@ -65,7 +65,8 @@ export default defineConfig({
           label: "GitHub",
         },
         {
-          href: "https://yeaseul7.github.io/about/",
+          // Use a base-aware internal path so it works under /ssaong_dev_blog/
+          href: "/about/",
           icon: "information",
           label: "About Me",
         },
