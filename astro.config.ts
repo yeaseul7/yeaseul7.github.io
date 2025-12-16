@@ -91,7 +91,10 @@ export default defineConfig({
       ],
     }),
     mdx(),
-    sitemap(),
+    sitemap({
+      changefreq: "weekly",
+      priority: 0.7,
+    }),
   ],
   site: "https://yeaseul7.github.io/",
   trailingSlash: "always",
