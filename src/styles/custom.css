@@ -9,3 +9,25 @@
     opacity: 0.7;
   }
 }
+
+/* Print styles - hide navigation and header */
+@media print {
+  .header,
+  .sidebar,
+  .right-sidebar,
+  nav,
+  .social-icons,
+  header {
+    display: none !important;
+  }
+
+  .main-pane {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body {
+    margin: 0;
+    padding: 20px;
+  }
+}
