@@ -23,6 +23,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site).toString();
     {description && <meta property="og:description" content={description} />}
     <meta property="og:url" content={canonical} />
     {ogImage && <meta property="og:image" content={ogImage} />}
+    <!-- Goggle search console -->
+    <meta name="google-site-verification" content="strh2kXWs-eYvP8zwz0bIZMLBThPA0mLKvxzYftfQ6k" />
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-CZD8XP5VE0"></script>
     <script>
