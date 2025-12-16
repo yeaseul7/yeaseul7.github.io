@@ -85,7 +85,7 @@ export default defineConfig({
           tag: "meta",
           attrs: {
             name: "google-site-verification",
-            content: "NyADn_CiRr_UR1sqiXoaShldZ9okV3T4LTLkAzvjE6w",
+            content: "strh2kXWs-eYvP8zwz0bIZMLBThPA0mLKvxzYftfQ6k",
           },
         },
       ],
