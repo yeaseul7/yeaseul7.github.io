@@ -82,6 +82,13 @@ export default defineConfig({
           },
         },
         {
+          tag: "link",
+          attrs: {
+            rel: "sitemap",
+            href: "/sitemap-index.xml",
+          },
+        },
+        {
           tag: "meta",
           attrs: {
             name: "google-site-verification",
@@ -94,6 +101,18 @@ export default defineConfig({
     sitemap({
       changefreq: "weekly",
       priority: 0.7,
+      serialize(item) {
+        // 각 URL에 lastmod 추가 (Google이 더 잘 읽을 수 있도록)
+        item.lastmod = new Date().toISOString();
+        return item;
+      },
+      // 사용하지 않는 네임스페이스 제거 (더 깔끔한 sitemap)
+      namespaces: {
+        news: false,
+        video: false,
+        image: false,
+        xhtml: true, // 다국어 지원이 필요하면 true 유지
+      },
     }),
   ],
   site: "https://yeaseul7.github.io/",

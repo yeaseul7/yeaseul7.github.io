@@ -18,6 +18,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site).toString();
   <head>
     <title>{title}</title>
     <link rel="canonical" href={canonical} />
+    <link rel="sitemap" href="/sitemap-index.xml" />
     {description && <meta name="description" content={description} />}
     <meta property="og:title" content={title} />
     {description && <meta property="og:description" content={description} />}
