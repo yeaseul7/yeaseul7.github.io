@@ -81,6 +81,13 @@ export default defineConfig({
             type: "image/png",
           },
         },
+        {
+          tag: "meta",
+          attrs: {
+            name: "google-site-verification",
+            content: "NyADn_CiRr_UR1sqiXoaShldZ9okV3T4LTLkAzvjE6w",
+          },
+        },
       ],
     }),
     mdx(),
