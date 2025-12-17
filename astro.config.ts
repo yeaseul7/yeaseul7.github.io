@@ -72,6 +72,8 @@ export default defineConfig({
         },
       ],
       title: "Sseong Dev",
+      description:
+        "Frontend 개발자 이예슬의 개발 블로그. React, TypeScript, Next.js를 주력으로 사용하며 웹 개발과 프론트엔드 기술에 대한 글을 공유합니다.",
       head: [
         {
           tag: "link",
@@ -100,6 +102,22 @@ export default defineConfig({
           attrs: {
             name: "naver-site-verification",
             content: "6724760dddce453fb49399f0a1133ab8c91d000f",
+          },
+        },
+        {
+          tag: "meta",
+          attrs: {
+            property: "og:description",
+            content:
+              "Frontend 개발자 이예슬의 개발 블로그. React, TypeScript, Next.js를 주력으로 사용하며 웹 개발과 프론트엔드 기술에 대한 글을 공유합니다.",
+          },
+        },
+        {
+          tag: "meta",
+          attrs: {
+            name: "keywords",
+            content:
+              "프론트엔드, Frontend, React, TypeScript, Next.js, 웹개발, 개발블로그, JavaScript, 개발자, 이예슬, 쎄옹블로그, 쎄옹 블로그, 쎄옹의 개발 블로그, 이예슬 블로그",
           },
         },
       ],
