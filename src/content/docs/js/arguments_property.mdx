@@ -1,0 +1,77 @@
+---
+title: arguments
+layout: ../../../layouts/BlogPost.astro
+---
+
+### arguments란?
+
+함수를 호출할때 전달된 인수의 정보를 담고있는 **유사 배열 객체**이다.
+
+함수 외부에서는 참조할 수 없는 지역변수처럼 사용되는 객체이다.
+
+```javascript
+function multiply(x, y) {
+  console.log(arguments);
+  return x * y;
+}
+
+console.log(multiply()); // NaN
+
+/*
+Arguments 
+callee: ƒ multiply(x, y)
+length: 0
+Symbol(Symbol.iterator): ƒ values()
+[[Prototype]]: Object
+*/
+```
+
+위의 예시에서 x와 y는 함수 내부에서 변수처럼 본다.
+multiply 함수가 호출되는 시점에 x와 y는 함수 내부에서 선언되고 undefined로 초기화 되고 값이 할당된다.
+
+multiply함수를 호출할 때 매개변수의 개수를 적게 보내도 undefined로 초기화되기 때문에 무시된다.
+따라서 에러가 발생하지 않는다.
+
+```javascript
+console.log(multiply()); // NaN
+console.log(multiply(1)); // NaN
+console.log(multiply(1, 2)); // 2
+console.log(multiply(1, 2, 3)); // 2
+```
+
+> 💡하지만 화살표 함수 (arrow function)에는 arguments를 찾으려면 상위 스코프에서 찾거나 에러가 난다.
+
+### arguments 객체는 유사 배열 객체
+
+arguments를 콘솔로 찍어봤을 때
+
+```
+Arguments
+callee: ƒ multiply(x, y)
+length: 0
+Symbol(Symbol.iterator): ƒ values()
+[[Prototype]]: Object
+```
+
+이렇게 나왔다. 여기서 length도 있고 iterator프로퍼티도 존재하는것을 확인할 수 있다.
+
+map, forEach같은 배열 메서드는 존재하지 않지만 이터러블해서 for...of 문은 사용할 수 있다.
+
+callee는 함수 자신을 가리키며 length는 인수의 개수를 가리킨다.
+
+> 💡 **참고:** callee는 Strict Mode에서 에러를 유발하기 때문에 최근에는 사용하지 않는다.
+
+여기서 생각해야할 점은 유사 배열 객체가 배열은 아니라는 것이다.
+
+### Rest 파라미터 사용하기
+
+```javascript
+function multiply(...args) {
+  console.log(args); // [1, 2, 3] (배열)
+  return args.reduce((acc, cur) => acc * cur, 1);
+}
+
+console.log(multiply(1, 2, 3)); // 6
+```
+
+이렇게 사용하면 진짜 배열로 배열메서드를 바로 사용할 수 있고 화살표 함수에서도 arguments 객체가 존재하지 않는 다는 점을 극복할 수 있다.

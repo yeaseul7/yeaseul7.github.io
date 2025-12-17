@@ -19,7 +19,17 @@ export default defineConfig({
 
         {
           label: "Javascript",
-          autogenerate: { directory: "js" },
+          items: [
+            "js/arguments_property",
+            "js/prototype",
+            "js/closure",
+            "js/hoisting",
+            "js/javasciprt_para",
+            "js/javascript_func",
+            "js/javascrpt_func_this",
+            "js/single-thread",
+            "js/v8-bytecode",
+          ],
           collapsed: true,
         },
         {
