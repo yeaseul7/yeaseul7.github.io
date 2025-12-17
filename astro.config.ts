@@ -95,6 +95,13 @@ export default defineConfig({
             content: "strh2kXWs-eYvP8zwz0bIZMLBThPA0mLKvxzYftfQ6k",
           },
         },
+        {
+          tag: "meta",
+          attrs: {
+            name: "naver-site-verification",
+            content: "6724760dddce453fb49399f0a1133ab8c91d000f",
+          },
+        },
       ],
     }),
     mdx(),
