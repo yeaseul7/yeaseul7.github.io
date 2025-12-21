@@ -5,86 +5,132 @@ title: Prototype
 
 import { Image } from "astro:assets";
 import constructorPrototypeImg from "../../../assets/images/prototype/contructorprototype.png";
+import abnormalChainImg from "../../../assets/images/prototype/abnormal_prototype_chain.png";
 
-### 개요
+### Prototype 기반 OOP
 
-Javascript는 prototype 기반 OOP 언어라고 한다.
-Javascript를 계속 보니까 이제 실제로 어떤걸 가지고 prototype과 chain을 이야기 하는 것인지 조금은 이해했지만
-더 자세히 살펴볼 필요가 있을 것 같아 해당 글을 작성한다.
+> Javascript는 Prototype으로 OOP 특성인 상속성을 보여준다.
 
-### 📍 Prototype 기반 OOP
-
-> prototype은 Object들이 서로 속성을 공유하기 위해 사용하는 연결고리다.
-
-보통은 class로 상속모델을 사용하는데 javascript는 프로토타입 상속모델을 사용한다.
-객체가 상위 프로토타입 메소드와 속성을 상속받을 수 있는데 상위의 상위 프로토타입도 상속을 받을 수 있게 하는 것을 <b>Prototype Chain</b>이라고도 한다.
-즉, 상속되는 속성과 메소드는 생성자의 prototype안에 정의되어있다.
+생성자 함수를 사용하여 OOP 특성인 상속성을 구현하면 함수 같은 경우 인스턴스마다 속성이 중복으로 생기기 때문에 메모리 측면에서 비효율적일 수 있다.
+이때 prototype으로 한곳에 함수를 저장하고 prototype 접근을 통해 효율적으로 사용할 수 있다.
 
 ```javascript
-let a = {}
-console.log(a.__proto__)
-{__defineGetter__: ƒ, __defineSetter__: ƒ, hasOwnProperty: ƒ, __lookupGetter__: ƒ, __lookupSetter__: ƒ, …}
-constructor:ƒ Object()
-hasOwnProperty:ƒ hasOwnProperty()
-isPrototypeOf:ƒ isPrototypeOf()
-propertyIsEnumerable:ƒ propertyIsEnumerable()
-toLocaleString:ƒ toLocaleString()
-toString:ƒ toString()
-valueOf:ƒ valueOf()
-__defineGetter__:ƒ __defineGetter__()
-...
+// 생성자 함수를 사용하는 경우
+function Circle(radius) {
+  this.radius = radius;
+  this.getArea = function () {
+    return Math.PI * this.radius ** 2;
+  };
+}
+
+const circle1 = new Circle(1);
+const circle2 = new Circle(2);
+
+//getArea가 중복으로 생성됨 🥲
+
+// Prototype을 사용하는 경우
+
+function Circle(radius) {
+  this.radius = radius;
+}
+
+Circle.prototype.getArea = function () {
+  return Math.PI * this.radius ** 2;
+};
+
+const circle1 = new Circle(1);
+const circle2 = new Circle(2);
+
+//Circle.prototype으로부터 getArea를 상속받는다.
 ```
 
-### ❤️ Prototype이란?
+모든 객체는 [[Prototype]]이 존재하고 그 값은 null일 수 있다.
+객체 생성 방식에 따라 어떤 값이 들어갈지 정해진다.
+또한 그 값은 `__proto__`로 간접 접근 가능하다.
 
-prototype 객체는 생성자 함수로 생성된 객체들이 공통으로 사용할 수 있는 프로퍼티를 제공하는 역할을 합니다.
-일반 함수가 생성될 때 prototype 프로퍼티가 자동으로 함께 만들어집니다.
+### [[Prototype]] & prototype
 
-#### 🔍 [[Prototype]] 내부 슬롯 vs prototype 프로퍼티
+**`[[Prototype]]`**
 
-JavaScript에서는 두 가지 다른 개념을 구분해야 합니다
-
-**`[[Prototype]]` 내부 슬롯**
-
-- 모든 객체가 가지고 있는 내부 슬롯
-- 상속을 구현하는데 사용되는 참조값
+- 모든 객체
 - `__proto__` 접근자나 `Object.getPrototypeOf()`로 접근 가능
-- 객체의 `[[Prototype]]`은 상속 체인에서 상위에 있는 프로토타입 객체를 가리킵니다
-- 함수의 경우에는 `Function.prototype` 객체를 가리킵니다
-- 인스턴스의 경우에는 생성자 함수의 `prototype` 프로퍼티가 가리키는 객체를 가리킵니다
+- 상위에 있는 프로토타입 객체
+- 함수의 경우 -> `Function.prototype`
+- 인스턴스의 경우 -> 생성자 함수의 `prototype` 객체
 
 **`prototype` 프로퍼티**
 
 - 함수 객체만 가지고 있는 일반 프로퍼티
-- 생성자 함수로 인스턴스를 만들 때 인스턴스의 `[[Prototype]]`이 가리킬 객체
+- 인스턴스의 `[[Prototype]]`이 가리킬 객체 `ex) Dog.prototype`
+  > ⚠️ 화살표 함수는 non-constructor이기 때문에 prototype 프로퍼티가 없다.
 
 ```javascript
 function Dog(name) {
-  this.name = "early"; // 생성자 함수의 프로퍼티 설정
+  this.name = "early";
 }
 
-const puppy = new Dog("access"); // Dog 생성자로 인스턴스 생성
+const puppy = new Dog("access");
 
-// prototype 프로퍼티 (함수만 소유)
-console.log(Dog.prototype); // 👉 Dog는 함수이므로 prototype 프로퍼티 존재 ✅
-console.log(puppy.prototype); // 👉 puppy는 인스턴스이므로 prototype 프로퍼티 없음 ❌ (undefined)
+console.log(Dog.prototype); // Dog는 함수이므로 prototype 프로퍼티 존재
+console.log(puppy.prototype); // undefined
 
-// [[Prototype]] 내부 슬롯 (모든 객체가 소유)
-console.log(Dog.__proto__); // 👉 Function.prototype
-console.log(puppy.__proto__); // 👉 Dog.prototype (생성자의 prototype 프로퍼티와 연결)
+console.log(puppy.__proto__ === Dog.prototype); // true
+console.log(Dog.__proto__); // Function.prototype
+console.log(puppy.__proto__); // Dog.prototype
 ```
 
-Prototype값에 접근하기 위해서 `Object.prototype.__proto__`를 사용하면 된다.
-이렇게 하면 내부에서 Object.getPrototypeOf()가 호출된다.
+### `__proto__`
+
+> `__proto__`는 접근자 프로퍼티이다.
+
+`__proto__`는 getter/setter를 통해 [[Prototype]]에 접근할 수 있게 해준다.
 
 ```javascript
-let a = {}; // 빈 객체 생성
-a.__proto__; // 객체의 프로토타입에 접근 (Object.prototype과 동일)
+const obj = {};
+const parent = { x: 1 };
+// getter 함수인 get __proto__가 호출되어 obj 객체의 프로토타입을 취득
+obj.__proto__;
 ```
 
-### ✅ constructor 프로퍼티
+```javascript
+const obj = {};
+const parent = { x: 1 };
+// setter 함수인 set __proto__가 호출되어 obj 객체의 프로토타입을 교체
+obj.__proto__ = parent;
+```
 
-프로토타입 객체(.prototype)는 constructor 프로퍼티를 갖는다.
+#### `__proto__`를 사용하는 이유
+
+`__proto__`를 사용하지 않으면 비정상적인 프로토타입 체인이 만들어질 수 있다.
+
+```javascript
+const parent = {};
+const child = {};
+// child의 프로토타입을 parent로 설정
+child.__proto__ = parent;
+// parent의 프로토타입을 child로 설정
+parent.__proto__ = child; // TypeError: Cyclic __proto__ value
+```
+
+**프로토타입 체인은 Linked List 구조이기 때문에 순환 참조가 발생하면 안된다.**
+
+접근자 프로퍼티를 사용하지 않고 직접 변경하는 방법은 없지만 그렇게 하면 체인을 탐색하는 과정에서 무한루프가 발생할 수 있다.
+
+<Image
+  src={abnormalChainImg}
+  alt="비정상적인 프로토타입 체인"
+  widths={[640, 1280]}
+  sizes="(max-width: 640px) 100vw, 640px"
+  formats={["avif", "webp", "png"]}
+  quality={80}
+  loading="lazy"
+  decoding="async"
+/>
+
+### constructor 프로퍼티
+
+프로토타입 객체는 constructor 프로퍼티를 갖는다.
+
 이 constructor프로퍼티는 객체의 입장에서 자신을 생성한 객체를 가리킨다.
 
 <Image
@@ -97,6 +143,37 @@ a.__proto__; // 객체의 프로토타입에 접근 (Object.prototype과 동일)
   loading="lazy"
   decoding="async"
 />
+
+> 리터럴 표현 방식으로 만들어진 객체는 추상연산으로 인해 반드시 객체를 생성한 생성자 함수와 연결되지 않을 수 있다.
+
+```javascript
+// 1. Object 생성자 함수에 의한 객체 생성
+// 인수가 전달되지 않았을 때 추상 연산 OrdinaryObjectCreate를 호출하여 빈 객체를 생성한다.
+let obj = new Object();
+console.log(obj); // {}
+
+// 2. new.target이 undefined나 Object가 아닌 경우
+// 인스턴스 -> Foo.prototype -> Object.prototype 순으로 프로토타입 체인이 생성된다.
+class Foo extends Object {}
+new Foo(); // Foo {}
+
+// 3. 인수가 전달된 경우에는 인수를 객체로 변환한다.
+// Number 객체 생성
+obj = new Object(123);
+console.log(obj); // Number {123}
+
+// String 객체 생성
+obj = new Object("123");
+console.log(obj); // String {"123"}
+```
+
+모든 객체는 `Object.create(null)`이 아닌이상 내부적으로 생성자 함수를 사용한다.
+
+```javascript
+const obj = {};
+const obj2 = new Object();
+// obj와 obj2는 동일한 프로토타입 체인을 가진다.
+```
 
 ### ✅ Prototype Chain
 
