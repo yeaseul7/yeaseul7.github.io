@@ -6,6 +6,7 @@ title: Prototype
 import { Image } from "astro:assets";
 import constructorPrototypeImg from "../../../assets/images/prototype/contructorprototype.png";
 import abnormalChainImg from "../../../assets/images/prototype/abnormal_prototype_chain.png";
+import prototypeChainImg from "../../../assets/images/prototype/prortype_chain.png";
 
 ### Prototype 기반 OOP
 
@@ -144,7 +145,61 @@ parent.__proto__ = child; // TypeError: Cyclic __proto__ value
   decoding="async"
 />
 
-> 리터럴 표현 방식으로 만들어진 객체는 추상연산으로 인해 반드시 객체를 생성한 생성자 함수와 연결되지 않을 수 있다.
+### Prototype Chain
+
+객체에서 프로퍼티나 메소드에 접근하려고 할 때 자신에게 해당 속성이 없으면 [[Prototype]]이 가리키는 링크를 따라 탐색한다.
+
+1. 해당 객체 자신의 프로퍼티를 참조한다.
+2. 없다면 -> [[Prototype]] 내부 슬롯의 참조를 따라 탐색한다.
+
+계속 올라가다가 null을 프로토타입으로 가지는 Object를 만나면 그때 프로퍼티 참조를 멈춘다.
+이러한 과정을 프로토타입 체인이라고 한다.
+
+```javascript
+const early = {
+  type: "Dog",
+};
+
+console.log(early.hasOwnProperty("type")); // -> true
+
+//early라는 객체는 hasOwnProperty라는 메소드를 가지고 있지 않는데 정상적으로 출력되었다.
+//이는 early라는 객체의 [[Prototype]]이 가리키는 링크인 Object.prototype의 hasOwnProperty를 호출하였기 때문이다.
+//Object.prototype.hasOwnProperty.call(early, "type")
+```
+
+javascript의 Reference Type은 모두 위와 같은 방식으로 동작한다. (ex. Array, Set, Object, Function)
+Reference Type은 위의 프로토타입 체인을 통해 내장 메서드에 접근한다. (ex. Array.prototype.map())
+
+```javascript
+function Person(name) {
+  this.name = name;
+}
+// 프로토타입 메서드
+Person.prototype.sayHello = function () {
+  console.log(`Hi! My name is ${this.name}`);
+};
+const me = new Person("Lee");
+// hasOwnProperty는 Object.prototype의 메서드다.
+console.log(me.hasOwnProperty("name")); // true
+```
+
+<Image
+  src={prototypeChainImg}
+  alt="constructor 프로퍼티와 prototype 관계"
+  widths={[640, 1280]}
+  sizes="(max-width: 640px) 100vw, 640px"
+  formats={["avif", "webp", "png"]}
+  quality={80}
+  loading="lazy"
+  decoding="async"
+/>
+
+### 객체 리터럴 방식
+
+javascript 엔진은 객체 리터럴로 생성하는 코드를 만나면 내부적으로 Object.create(Object.prototype)와 유사한 방식으로 객체를 생성한다.
+Object.create()는 함수 객체로 일반 객체와 다르게 prototype 프로퍼티가 있다.
+
+리터럴 표현 방식으로 만들어진 객체는 추상연산으로 인해 반드시 객체를 생성한 생성자 함수와 연결되지 않을 수 있다.
 
 ```javascript
 // 1. Object 생성자 함수에 의한 객체 생성
@@ -174,40 +229,6 @@ const obj = {};
 const obj2 = new Object();
 // obj와 obj2는 동일한 프로토타입 체인을 가진다.
 ```
-
-### ✅ Prototype Chain
-
-객체에서 프로퍼티나 메소드에 접근하려고 할 때 자신에게 해당 속성이 없으면 [[Prototype]]이 가리키는 링크를 따라 탐색한다.
-계속 올라가다가 null을 프로토타입으로 가지는 Object를 만나면 그때 프로퍼티 참조를 멈춘다.
-이러한 과정을 프로토타입 체인이라고 한다.
-
-```javascript
-const early = {
-  type: "Dog",
-};
-
-console.log(early.hasOwnProperty("type")); // -> true
-
-//early라는 객체는 hasOwnProperty라는 메소드를 가지고 있지 않는데 정상적으로 출력되었다.
-//이는 early라는 객체의 [[Prototype]]이 가리키는 링크인 Object.prototype의 hasOwnProperty를 호출하였기 때문이다.
-//Object.prototype.hasOwnProperty.call(early, "type")
-```
-
-javascript의 Reference Type은 모두 위와 같은 방식으로 동작한다. (ex. Array, Set, Object, Function)
-Reference Type은 위의 프로토타입 체인을 통해 내장 메서드에 접근한다. (ex. Array.prototype.map())
-
-_javascript의 Prototype 속성을 이용해서 자료구조에 활용하는 예시를 추후에 추가하고자 한다._
-
-### 📍 프로토타입 체인이 생성되는 경우
-
-1. 객체 리터럴 방식
-2. 생성자 함수 방식
-3. Object.create()
-
-#### 객체 리터럴 방식
-
-javascript 엔진은 객체 리터럴로 생성하는 코드를 만나면 내부적으로 Object.create(Object.prototype)와 유사한 방식으로 객체를 생성한다.
-Object.create()는 함수 객체로 일반 객체와 다르게 prototype 프로퍼티가 있다.
 
 ### ⚠️ 주의할 점
 
