@@ -22,6 +22,7 @@ export default defineConfig({
           items: [
             "js/arguments_property",
             "js/prototype",
+            "js/class",
             "js/closure",
             "js/hoisting",
             "js/javasciprt_para",

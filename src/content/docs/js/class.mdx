@@ -1,0 +1,163 @@
+---
+layout: ../../../layouts/BlogPost.astro
+title: class
+---
+
+import { Image } from "astro:assets";
+import consVsClassImg from "../../../assets/images/class/cons_vs_class.png";
+
+### class와 함수
+
+javascript는 사실 class가 필요 없다. 
+왜냐하면 프로토타입 기반 언어이기 때문이다. 
+
+prototype으로 상속성을 구현할 수 있다.
+
+javascript에서 class는 사실 함수이다. 하지만 기존의 생성자 함수와 몇가지 차이가 존재한다. 
+
+1. new 연산자 없이 호출하면 에러가 발행
+2. 상속을 지원하는 extends와 super 키워드를 제공
+3. 클래스는 호이스팅이 발생하지 않는 것처럼 동작
+
+```javascript
+const d = new Dog('바둑이'); // ReferenceError: Cannot access 'Dog' before initialization
+class Dog {
+  constructor(name) {
+    this.name = name;
+  }
+}
+```
+
+4. 암묵적으로 strict mode가 지정되어 실행
+5. 클래스의 constructor, 프로토타입 메서드, 정적 메서드는 모두 프로퍼티 어트리뷰트 [[Enumerable]]의 값이 false (열거 X)
+
+#### 일급객체 class
+
+```javascript
+const Person = class {};
+
+const Yeaseul = class MyClass {
+  constructor() {
+    this.name = "yeaseul";
+  }
+};
+
+function createIntro(ClassType) {
+  return new ClassType();
+}
+
+const yeaseul = createIntro(Yeaseul);
+
+function getAge(age){
+  if(age < 20){
+    return class {
+      render() {
+        console.log("미성년자 삐빅");
+      }
+    };
+  }else{
+    return class {
+      render() {
+        console.log("성인 삐빅");
+      }
+    };
+  }
+}
+
+const babyClass = getAge(2);
+const babyTheme = new babyClass();
+
+console.log(babyTheme.render);
+```
+
+1. 익명 리터럴을 사용할 수 있다. 
+2. 변수에 할당할 수 있다. 
+3. 매개변수로 받을 수 있다.
+4. 함수의 반환값으로 사용될 수 있다. 
+
+=> 일급객체
+
+#### 생성자 함수와 class 비교하기 
+
+<Image
+  src={consVsClassImg}
+  alt="클래스와 생성자 함수 비교"
+  widths={[500, 1000]}
+  sizes="(max-width: 640px) 100vw, 500px"
+  formats={["avif", "webp", "png"]}
+  quality={80}
+  loading="lazy"
+  decoding="async"
+/>
+
+> 함수가 호이스팅 되는 과정을 잠시 설명하고 넘어갑니다.
+함수는 런타임 이전에 함수 객체가 생성되는데, 이때 생성되는 함수객체는 constructor와 prototype입니다.
+
+이 두개는 한 쌍으로 존재합니다. 
+[prototype에서 constructor 부분 사진](https://yeaseul7.github.io/js/prototype)을 보면 이해가 됩니다.
+
+class도 마찬가지로 호이스팅 되지만 class는 const, let과 같이 호이스팅 되기 때문에 TDZ가 생깁니다.
+
+호이스팅은 되고 있다는점!
+
+공부하다가 헷갈리는 부분이 있는데 
+
+### class constructor
+<Image
+  src={consVsClassImg}
+  alt="클래스와 생성자 함수 비교"
+  widths={[500, 1000]}
+  sizes="(max-width: 640px) 100vw, 500px"
+  formats={["avif", "webp", "png"]}
+  quality={80}
+  loading="lazy"
+  decoding="async"
+/>
+
+class는 2개 이상의 constructor를 가질 수 없다. 
+
+그런데 prototype.constructor라는것도 있는데 이거랑 class의 constructor는 같은것인가?
+
+아니다. prototype.constructor는 부모를 가르키는 포인터의 역할을 하는 것이고
+
+class에서 constructor는 인스턴스를 만들때 실행되는 부분입니다.
+
+```javascript
+class Person {
+  constructor(name, address) {
+    this.name = name;
+    this.address = address;
+  }
+}
+const me = new Person('Lee', 'Seoul');
+console.log(me); // Person {name: "Lee", address: "Seoul"}
+```
+Person안에 constructor안에 name과 address앞에 this를 쓰는 이유는
+Person으로 만들어진 인스턴스의 속성을 변경하라는 의미이다. 
+
+만약 this를 쓰지않는다면 의미없는 코드가 되어버린다. 
+
+⚠️ constructor가 다른 객체를 반환하면 this를 무시한다. 그리고 원시값을 반환하면 this가 반환된다.
+
+### prototype 메서드 & static 메서드
+
+```javascript
+class Person {
+  constructor(name) {
+    this.name = name;
+  }
+  sayHi1() {
+    console.log(`Hi! My name is ${this.name}`);
+  }
+  static sayHi2() {
+    console.log('Hi!');
+  }
+}
+```
+prototype 메서드인 sayHi1는 Person.prototype.sayHi1로 저장된다.
+sayHi2는 Person.sayHi2로 저장된다. 
+
+따라서 prototype 메서드와 static 메서드는 속해있는 prototype chain이 다르다.
+
+그리고 static 메서드는 인스턴스 프로퍼티를 참조할 수 없다.
+
