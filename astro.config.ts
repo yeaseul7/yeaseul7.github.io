@@ -28,6 +28,8 @@ export default defineConfig({
             "js/javasciprt_para",
             "js/javascript_func",
             "js/javascrpt_func_this",
+            "js/iterable",
+            "js/array_like_object",
             "js/single-thread",
             "js/v8-bytecode",
           ],
