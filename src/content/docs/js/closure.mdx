@@ -40,7 +40,7 @@ innerFunc(); //✅ 10
 outer가 inner를 반환한 시점에서 outer의 LifeCycle은 끝이 났다.
 하지만 innerFunc은 outer안에 있는 지역변수 x의 값을 찍고 있다.
 
-"x는 private 변수이다 -> closure로 priovate 변수를 만들 수 있다."
+"x는 private 변수이다 -> closure로 private 변수를 만들 수 있다."
 
 inner함수가 평가될 때 inner 함수의 환경에는 상위 스코프에 대한 정보가 있을 것이다.
 outer 함수는 평가될 때 전역 스코프를 함수의 환경 정보에 저장하고 있을 것이다.

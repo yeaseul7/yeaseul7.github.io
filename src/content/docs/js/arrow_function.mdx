@@ -1,0 +1,73 @@
+---
+layout: ../../../layouts/BlogPost.astro
+title: 화살표 함수
+---
+
+import { Image } from "astro:assets";
+
+### arrow function
+
+```javascript
+const add = (a, b) => a + b;
+console.log(add(1, 2)); // 3
+```
+
+화살표 함수는 인스턴스를 생성할 수 없는 **non-constructor**이다.    
+따라서 prototype 프로퍼티가 없고, 프로토타입도 생성하지 않는다. 
+
+일반 함수는 new를 이용하여 인스턴스를 물려주기위한 Prototype Object를 생성한다. (정의할 때)
+
+화살표 함수는 가볍게 사용하기 위해 프로토타입으로 인한 주렁 열매들을 버린다.   
+
+### this와 arrow function
+
+화살표 함수는 함수 안에 this를 만들지 않는다.    
+**자기보다 한 단계 상위 스코프(Scope)를 참조한다.**    
+따라서 인스턴스를 생성할 수 없고 인스턴스를 물려주기 위한 prototype 프로퍼티가 필요가 없다. 
+
+이부분을 잘 이해하고 있어야 하는게   
+this가 없어서 화살표 함수를 아무곳에나 사용하면 에러가 발생한다.
+
+```javascript
+const person = {
+  name: 'Lee',
+  // 🚨 화살표 함수를 쓰면 this가 person이 아니라 window(전역)를 가리킴
+  sayHi: () => console.log(`Hi ${this.name}`) 
+};
+
+person.sayHi(); // "Hi undefined" (원했던 결과가 아님)
+```
+
+### this 뿐만 아니고 arguments, super, new.target 등의 바인딩도 갖지 않는다. 
+
+#### arguments가 없는 이유
+
+arguments는 함수를 호출할 때 전달된 인수의 정보를 담고있는 유사 배열 객체이다.    
+s6 이후 rest 파라미터를 사용하면 arguments를 사용하지 않아도 된다.    
+만약 화살표함수에서 arguments를 사용하려면 상위 스코프에서 찾는다.
+
+#### super가 없는 이유
+super는 상속 관계에서 부모 클래스의 메서드를 호출하기 위해 사용된다.     
+`[[HomeObject]]`라는 내부 슬롯을 기준으로 부모를 찾는다.    
+하지만 화살표 함수는 `[[HomeObject]]`를 가지지 않기 때문에 super를 사용할 수 없다.
+
+```javascript
+class Parent {
+  sayHi() { console.log('Parent Hi'); }
+}
+
+class Child extends Parent {
+  sayHi() {
+    // 화살표 함수는 자신만의 super가 없으므로,
+    // 상위 스코프인 Child.sayHi()의 super(즉, Parent)를 그대로 사용함
+    const arrow = () => super.sayHi();
+    arrow(); 
+  }
+}
+```
+
+#### new.target이 없는 이유
+
+new.target은 생성자 함수를 호출할 때 생성자 함수를 가리키는 프로퍼티이다.    
+new로 호출할 수 없는 Non-constructor 이기때문에 new.target을 사용할 수 없다.
+

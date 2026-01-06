@@ -30,6 +30,7 @@ export default defineConfig({
             "js/javascrpt_func_this",
             "js/iterable",
             "js/array_like_object",
+            "js/arrow_function",
             "js/single-thread",
             "js/v8-bytecode",
           ],
