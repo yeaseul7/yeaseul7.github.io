@@ -1,0 +1,65 @@
+---
+layout: ../../../layouts/BlogPost.astro
+title: iterable
+---
+
+import { Image } from "astro:assets";
+import iterableProtoImg from "../../../assets/images/iterable/iterable_protocol.png";
+import iterableInterImg from "../../../assets/images/iterable/iterable_interface.png";
+
+### iteration protocol
+
+iteraion protocol은 순회 가능한 자료구조를 위해 정의된 규칙이다.
+
+ES6 이전에는 순회하는 방법이 제각각 이었다. 
+
+배열, 문자열, 유사배열객체... 등 하지만 iteration protocol이 생기고 난 이후에 
+
+순회 가능한 데이터는 해당 protocol을 지키고 for loop나 spread 문법을 쓸 수 있게 해준 것이다. 
+
+<Image
+  src={iterableProtoImg}
+  alt="이터러블 프로토콜"
+  widths={[500, 1000]}
+  sizes="(max-width: 640px) 100vw, 500px"
+  formats={["avif", "webp", "png"]}
+  quality={80}
+  loading="lazy"
+  decoding="async"
+/>
+
+#### iterable protocol
+
+순회할 수 있는 규칙이다.
+Symbol.iterator를 가지고 있는다. 
+
+#### iterator protocol
+
+next 메서드를 가지고 있으며
+```javascript
+{
+  value:,
+  done: true/false
+}
+```
+이런식으로 뱉는다는 규칙이다.
+
+```javascript
+// 이터러블 프로토콜을 준수하는 객체
+const myIterable = {
+    [Symbol.iterator]() {
+        let i = 0;
+        
+        // 이터레이터 프로토콜을 준수하는 객체
+        return {
+            next() {
+                i++;
+                if (i <= 3) {
+                    return { value: i, done: false }; 
+                }
+                return { value: undefined, done: true }; 
+            }
+        };
+    }
+};
+```
