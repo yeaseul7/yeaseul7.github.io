@@ -33,5 +33,8 @@ export default new Map([
 ["src/content/docs/fe/webpack.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Ffe%2Fwebpack.mdx&astroContentModuleFlag=true")],
 ["src/content/docs/retrospect/gdsc.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Fretrospect%2Fgdsc.mdx&astroContentModuleFlag=true")],
 ["src/content/docs/retrospect/retro2025.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Fretrospect%2Fretro2025.mdx&astroContentModuleFlag=true")],
-["src/content/docs/retrospect/skhu-contest.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Fretrospect%2Fskhu-contest.mdx&astroContentModuleFlag=true")]]);
+["src/content/docs/retrospect/skhu-contest.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Fretrospect%2Fskhu-contest.mdx&astroContentModuleFlag=true")],
+["src/content/docs/js/spread_gram.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Fjs%2Fspread_gram.mdx&astroContentModuleFlag=true")],
+["src/content/docs/js/spread_syntax.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Fjs%2Fspread_syntax.mdx&astroContentModuleFlag=true")],
+["src/content/docs/fe/reflow_repaint.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Ffe%2Freflow_repaint.mdx&astroContentModuleFlag=true")]]);
 		

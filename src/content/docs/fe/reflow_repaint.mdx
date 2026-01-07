@@ -1,0 +1,96 @@
+---
+layout: ../../../layouts/BlogPost.astro
+title: reflow와 repaint
+---
+import { Image } from "astro:assets";
+import reflow_repaint from "../../../assets/images/reflow_repaint/reflow_repaint.png";
+
+<Image
+  src={reflow_repaint}
+  alt="reflow_repaint"
+  widths={[500, 1000]}
+  sizes="(max-width: 640px) 100vw, 500px"
+  formats={["avif", "webp", "png"]}
+  quality={80}
+  loading="lazy"
+  decoding="async"
+/>
+
+### reflow
+
+렌더 트리가 변경될 때 계산하는 단계입니다.    
+즉, 레이아웃 배치를 의미합니다.   
+DOM이나 CSSOM이 변경될 때 변경된 DOM과 CSSOM이 렌더더 트리로 결합됩니다.   
+
+reflow와 repait가 이루어지기 위해서는 `Renderer`가 필요합니다.
+
+#### Renderer
+
+DOM 노드를 시각적으로 표현하기위한 객체입니다.
+어떻게 reflow할지 구체적인 정보를 담고있습니다.
+
+DOM을 parsing하고 CSS를 parsing한 후에 각각의 tree를 생성합니다.    
+DOM tree Root(html)에서 시작해 Dom node를 순회합니다.   
+그리고 실제로 화면에 그려질 필요가 있는 node만 골라서 `Renderer`를 생성하고 Render tree에 attachment합니다.
+
+### reflow trigger
+
+- DOM node 변경
+- 위치 변경 
+- 크기 변경
+- 내용 변경
+- 브라우저 창 크기 변경
+- 폰트 변경
+- css 클래스 활성화
+
+reflow는 레이아웃을 다시 계산하고 재배치 해야됨으로 비용이 많이 듭니다. 
+
+### repaint
+
+reflow 단계에서 계산된 위치와 정보들로 그리는 단계입니다.
+
+reflow 보다는 비용이 적게 들지만 픽셀 등을 계산해야해서 여전히 비용이 꽤나 드는 작업입니다.    
+
+하지만 repaint가 발생했다고 해서 reflow가 무조건 발생했던것은 아닙니다.    
+스타일만 바꾸는데 layout을 재배치 할 필요는 없기 때문입니다.
+
+### 브라우저의 Asynchronous Batching
+
+브라우저는 DOM이나 CSSSOM이 변경되어도 즉시 계산하지 않고 Renderer에 Dirty 표시만 해둡니다.
+이 변경된 요청 내역들은 Render Queue에 쌓습니다.
+
+만약 그렇지 않는다면 매번 다시 계산하고 reflow 하는 많은 비용이 발생합니다.
+
+Render Queue는 javascrtip의 실행 context가 끝나거나 프레임이 끝자락에 도달하면 그때 변경사항들을 모아서 
+한번에 처리합니다.
+
+하지만 offsetTop, clientWidth 같은 속성들은 큐를 강제로 비우게 만듭니다.    
+가장 최신의 값이 필요한 속성이기 때문에 큐에 쌓아두면 과거의 값들로 인해 오류가 발생할 수 있습니다.   
+때문에 이 속성들과 for loop들을 같이 사용한다면 매우 큰 비용이 발생합니다.
+
+WebKit/Blink 엔진과 같은 것들은 각 노드에 `Flag`를 달아 캐싱된 값을 사용할지말지를 결정합니다.
+
+### Composite
+
+reflow와 repaint를 최소화 하는 방법은 Composite를 사용하는 것입니다.    
+Composite는 paint된 여러장의 bitmap layer들을 GPU 메모리 위에서 합성하는 과정입니다.
+
+main thread는 javascript 실행, 스타일 계산, reflow, repiant작업을 담당합니다.
+Compositor Thread는 이미 그려저있는 layer를 이동시키거나 스크롤합니다.
+GPU는 그래픽 연산에 특화된 하드웨어입니다.
+
+#### Composite trigger
+- 3D 변형: transform: translate3d(0,0,0), transform: translateZ(0)
+- <video>, <canvas>, <iframe> 요소
+- CSS 애니메이션/트랜지션: transform이나 opacity 속성으로 애니메이션 중일 때
+- position: fixed
+- will-change 속성: (개발자가 브라우저에게 "이거 바뀔 거니까 레이어 따로 빼 줘"라고 힌트 주는 것)
+- backdrop-filter
+
+
+---
+
+### 참고 자료
+- https://velog.io/@fepanbr/Browser-Composite
+- https://jewelism.github.io/browser/reflow/
+- 모던 javascript
