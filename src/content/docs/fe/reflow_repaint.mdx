@@ -80,12 +80,14 @@ Compositor Thread는 이미 그려저있는 layer를 이동시키거나 스크�
 GPU는 그래픽 연산에 특화된 하드웨어입니다.
 
 #### Composite trigger
+```
 - 3D 변형: transform: translate3d(0,0,0), transform: translateZ(0)
 - <video>, <canvas>, <iframe> 요소
 - CSS 애니메이션/트랜지션: transform이나 opacity 속성으로 애니메이션 중일 때
 - position: fixed
 - will-change 속성: (개발자가 브라우저에게 "이거 바뀔 거니까 레이어 따로 빼 줘"라고 힌트 주는 것)
 - backdrop-filter
+```
 
 
 ---
