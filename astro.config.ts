@@ -32,7 +32,9 @@ export default defineConfig({
             "js/array_like_object",
             "js/arrow_function",
             "js/single-thread",
+            "js/event_loop",
             "js/v8-bytecode",
+            
           ],
           collapsed: true,
         },
