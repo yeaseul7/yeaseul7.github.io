@@ -1,0 +1,182 @@
+---
+layout: ../../../layouts/BlogPost.astro
+title: 브라우저의 최적화
+---
+import { Image } from "astro:assets";
+import before1 from "../../../assets/images/project-optimization/before1.png";
+import metrics from "../../../assets/images/project-optimization/metrics.png";
+import cls1 from "../../../assets/images/project-optimization/cls1.png";
+import cls2 from "../../../assets/images/project-optimization/cls2.png";
+import cls3 from "../../../assets/images/project-optimization/cls3.png";
+import chunk1 from "../../../assets/images/project-optimization/chunk1.png";
+import chunk2 from "../../../assets/images/project-optimization/chunk2.png";
+import analyze3 from "../../../assets/images/project-optimization/analyze3.png";
+
+### 브라우저의 성능을 확인해보고싶다.
+
+[꼬순내](https://www.kkosunnae.com/)라는 사이트를 개발하면서 개발은 대부분 마쳤지만 사이트를 최적화 하기 위해 분석하는 과정을 보여주려고 한다.
+
+1. [메인 페이지 https://www.kkosunnae.com/](https://www.kkosunnae.com/)
+
+<Image
+  src={before1}
+  alt="최적화 전"
+  widths={[500, 1000]}
+  sizes="(max-width: 640px) 100vw, 500px"
+  formats={["avif", "webp", "png"]}
+  quality={80}
+  loading="lazy"
+  decoding="async"
+/>
+
+이 스크린샷에서 보아야 할 점은 performance다.    
+`The page loaded too slowly to finish within the time limit. Results may be incomplete.`
+
+<Image
+  src={metrics}
+  alt="metrics"
+  widths={[500, 1000]}
+  sizes="(max-width: 640px) 100vw, 500px"
+  formats={["avif", "webp", "png"]}
+  quality={80}
+  loading="lazy"
+  decoding="async"
+/>
+metrics를 보면 원인은 두가지로 추릴 수 있다.     
+1. Largest Contentful Paint
+2. Cumulative Layout Shift
+더 심해보이는 Cumulative Layout Shift부터 살펴보자. 
+
+### Cumulative Layout Shift
+
+사용자가 버튼을 누르려고 하는데 갑자기 이미지가 로딩되면서 버튼이 아래로 밀려나서 엉뚱한 걸 누르게 되는 경험    
+CLS(Cumulative Layout Shift)
+
+새로고침을 하다보니 데이터가 생기기전에 로딩이 돌다가 데이터가 생기면서 사진이 추가되고     
+화면이 툭 하고 내려가는 현상이 발생하는 것 같다. 
+따라서 skeleton 방식으로 이를 해결하고자 하였다. 
+
+<Image
+  src={cls1}
+  alt="cls1"
+  widths={[500, 1000]}
+  sizes="(max-width: 640px) 100vw, 500px"
+  formats={["avif", "webp", "png"]}
+  quality={80}
+  loading="lazy"
+  decoding="async"
+/>
+<Image
+  src={cls2}
+  alt="cls2"
+  widths={[500, 1000]}
+  sizes="(max-width: 640px) 100vw, 500px"
+  formats={["avif", "webp", "png"]}
+  quality={80}
+  loading="lazy"
+  decoding="async"
+/>
+<Image
+  src={cls3}
+  alt="cls3"
+  widths={[500, 1000]}
+  sizes="(max-width: 640px) 100vw, 500px"
+  formats={["avif", "webp", "png"]}
+  quality={80}
+  loading="lazy"
+  decoding="async"
+/>
+
+주요 화면은 이 3개였다. 
+list를 보여주는 화면 모두에게 skeleton 방식을 사용하였다. 
+추가로 인기 유튜브 top3를 보여주는 부분도 마찬가지로 적용하였다. 
+
+### Largest Contentful Paint
+
+1. 처음 로드할때 많은 사진이 나타나는데 그때 fetchpriority를 설정하지 않아서 늦게 로드된다는 문제였다.    
+    -> fetchpriority는 메인에 들어가는 사진들에 fetchpriority를 적용시켰다.     
+2. 폰트가 늦게 적용되어 폰트가 적용되기전까지 막히는 요청들이 생겨서 다른 요청들도 미뤄진다는 진단을 받았다.    
+    -> next의 localFont를 사용하여 최적화를 진행했다.
+    (관련 문서)[https://nextjs.org/docs/app/getting-started/fonts]
+
+
+### Chunk js file
+
+<Image
+  src={chunk1}
+  alt="chunk1"
+  widths={[500, 1000]}
+  sizes="(max-width: 640px) 100vw, 500px"
+  formats={["avif", "webp", "png"]}
+  quality={80}
+  loading="lazy"
+  decoding="async"
+/>
+
+그림에서 보면 kkosunnae가 처음에 로드되면서 모든 js 모듈을 import 하고 다운은 하고 있지만 전혀 쓰이고 있지 않은 파일도 존재한다.    
+예상하기로는 Tiptap이나 Lottie의 대형 파일이 필요없는 시점에 로드되어서 해당 문제가 발생한다고 예상했다. 
+
+정확한 진단을 위해 
+`@next/bundle-analyzer`를 설치했고 
+
+사용 중인 Next.js 16 버전은 기본적으로 Turbopack을 사용해서 빌드하는데    
+bundle-analyzer는 아직 Webpack 엔진하고만 호환되어서    
+`ANALYZE=true npm run build` 이 명령어로만으로는 실행이 되지 않았다. 
+
+`ANALYZE=true npm run build -- --webpack` 이렇게 하니까
+<Image
+  src={analyze3}
+  alt="analyze3"
+  widths={[500, 1000]}
+  sizes="(max-width: 640px) 100vw, 500px"
+  formats={["avif", "webp", "png"]}
+  quality={80}
+  loading="lazy"
+  decoding="async"
+/>
+`.next/analyze/client.html`
+
+이 화면이 나왔고 이 화면을 통해 원인을 분석할 수 있다.   
+먼저 제일 큰것은 lottie였다. 
+
+메인 화면을 보면 알겠지만 강아지가 화면중앙을 걸어다니고 있다.   
+하지만 이부분을 포기할 수 없다.    
+너무 귀엽기 때문이다.   
+
+그래서 생각한 방법이 next/dynamic를 사용해서 화면에 보일때만 로드되도록 하는 것이다. 
+
+### next/dynamic
+
+React.lazy()와 Suspense를 합쳐놓은 Next.js의 기능이다.
+
+```javascript
+import dynamic from 'next/dynamic'
+ 
+// '../components/header'를 나중에(Lazy) 불러옵니다.
+// 불러오는 동안에는 'Loading...' 문구를 보여줍니다.
+const DynamicHeader = dynamic(() => import('../components/header'), {
+  loading: () => <p>Loading...</p>,
+})
+ 
+export default function Home() {
+  return <DynamicHeader />
+}
+```
+
+위의 방식으로 lottie를 보여주는 부분에 dynamics를 적용하였다. 
+
+lottie만 바꿔줬는데 
+<Image
+  src={chunk2}
+  alt="chunk2"
+  widths={[500, 1000]}
+  sizes="(max-width: 640px) 100vw, 500px"
+  formats={["avif", "webp", "png"]}
+  quality={80}
+  loading="lazy"
+  decoding="async"
+/>
+많이 줄은게 보였다. 
+
+Lottie를 제외하고 tiptap을 사용하는 부분들을 dynamic로 바꿨더니 해당 경고가 사라졌다.👍🏻
+
