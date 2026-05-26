@@ -1,0 +1,94 @@
+---
+layout: ../../../layouts/BlogPost.astro
+title: 무한 스크롤로 인한 OOM
+---
+import { Image } from "astro:assets";
+import chrome from "../../../assets/images/infinity-scroll/chrome.png";
+import page from "../../../assets/images/infinity-scroll/page.png";
+
+### 무한스크롤로 인한 크롬 터짐 현상
+<div style={{ maxWidth: "375px", margin: "0 auto" }}>
+  <Image
+    src={chrome}
+    alt="터짐"
+    widths={[300, 900]}
+    sizes="(max-width: 640px) 100vw, 375px"
+    formats={["avif", "webp", "png"]}
+    quality={80}
+    loading="lazy"
+    decoding="async"
+    style={{ width: "100%", height: "auto" }}
+  />
+</div>
+<Image
+  src={page}
+  alt="화면"
+  widths={[500, 1000]}
+  sizes="(max-width: 640px) 100vw, 500px"
+  formats={["avif", "webp", "png"]}
+  quality={80}
+  loading="lazy"
+  decoding="async"
+/>
+
+해당 화면에서는 초기에 데이터를 30개씩 불러오고 화면 맨 아래에 도달하면 30개를 계속해서 호출하도록 구현했다.       
+무한 스크롤을 처음 구현하다 보니 보이는 부분만 DOM을 생성해야 한다는 점을 간과했다.      
+
+데이터가 쌓일수록 브라우저가 DOM 노드가 늘어났고 크롬 화면이 터지는 OOM(Out Of Memory)이 발생했다.    
+그래서 필요한 부분만 렌더링하는 Virtual List를 사용했다.   
+
+### react-window
+
+Virtual Scrolling 라이브러리다.   
+뷰포트 크기를 계산해서 눈에 보이는 요소만 DOM에 두고 나머지는 제거한다.    
+
+중요한건 Outer Element와 Inner Element가 필요로 한다는 점이다.     
+Outer Element : 실제 스크롤이 발생하는 상자 `전체 높이($Total\ Height = Count \times ItemHeight$)`    
+Inner Element : 스크롤 대상이 배치되는 공간 위치에 따른 position absolute 사용
+
+
+1. onScroll : Outer Element에 onScroll 이벤트 리스너를 등록한다.     
+1-1. Passive Event Listeners: `{ passive: true }`을 사용해서 스크롤 이벤트 내에서 preventDefault()를 사용하지 않는다고 명시한다. -> 메인 스레드 차단 없이 부드럽게 처리를 위함    
+1-2. Scroll Offset 계산: scrollTop을 아이템 높이로 나눠서 몇번 인덱스부터 그려야할지 계산
+
+```javascript
+// 주요 구현 로직 요약
+export default function VirtualizedShelterGrid({ items, width, height, onScrollNearEnd }) {
+  // 1. 컬럼 수 및 로우 수 계산
+  const columnCount = width < 640 ? 1 : 3;
+  const rowCount = Math.ceil(items.length / columnCount);
+  
+  // 2. 스크롤 위치 감지 및 추가 데이터 로딩 (Infinite Scroll 연동)
+  const handleScroll = ({ scrollTop }) => {
+    const totalHeight = rowCount * ROW_HEIGHT;
+    if (scrollTop + height >= totalHeight - LOAD_MORE_THRESHOLD) {
+      onScrollNearEnd?.(); // 임계점에 도달하면 다음 페이지 호출
+    }
+  };
+
+  // 3. 실제 보이는 셀(Cell)만 렌더링
+  const Cell = ({ columnIndex, rowIndex, style }) => {
+    const index = rowIndex * columnCount + columnIndex;
+    const item = items[index];
+    if (!item) return <div style={style} />;
+
+    return (
+      <div style={style}>
+        <AbandonedCard shelterAnimal={item} />
+      </div>
+    );
+  };
+
+  return (
+    <Grid
+      columnCount={columnCount}
+      rowCount={rowCount}
+      rowHeight={ROW_HEIGHT}
+      onScroll={handleScroll}
+      overscanRowCount={2} // 화면 밖 요소를 미리 2줄 정도 그려두어 끊김 방지
+    >
+      {Cell}
+    </Grid>
+  );
+}
+```

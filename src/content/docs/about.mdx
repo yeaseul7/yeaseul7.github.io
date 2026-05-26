@@ -36,12 +36,11 @@ import DownloadButton from "../../components/DownloadButton";
 
 ### INTRODUCE
 
-웹/앱 서비스 개발로 프론트엔드 개발을 담당하고 있는 이예슬입니다. React, Typescript, Next.js 등을 주력으로 사용하며 컴포넌트 기반 설계로
-서비스의 확장성과 유지보수성이 높은 아키택쳐를 설계합니다. CRM 개발을 하면서 복잡한 비즈니스 로직을 Custom Hook으로 분리/추상화하여 시스템의 안정성과 렌더링 성능을 동시에 확보했습니다.
+웹/앱 서비스 개발을 중심으로 프론트엔드 개발을 담당해 온 이예슬입니다. React, TypeScript, Next.js를 주력으로 사용하며, 사용자 흐름에 맞는 화면을 구현하고 유지보수하기 좋은 컴포넌트 구조를 고민합니다.
 
-사용자가 자연스럽게 스며드는 서비스를 만들고자 합니다.
-개발자가 비즈니스 로직을 명확히 파악할 때 더 나은 문제 해결 방법과 사용자 경험 설계가 가능하다고 생각합니다.
-비즈니스와 기술을 잇는 통찰력을 위해 팀과 적극적으로 소통하며 함께 나아가겠습니다.
+CRM 개발에서는 기존 Vue + CDN 기반 화면 구조를 React 앱 기반 구조로 전환하고, 분산되어 있던 화면 개발 방식을 컴포넌트 중심으로 정리했습니다. 또한 Azure CDN 마이그레이션과 불필요한 호출 로직 정리를 통해 렌더링 속도를 10초에서 3초로 개선하며 사용자 체감 성능을 높였습니다.
+
+저는 기능을 단순히 구현하는 것보다, 서비스가 해결하려는 문제와 사용자의 실제 흐름을 이해하는 것을 중요하게 생각합니다. 비즈니스 요구사항을 기술적으로 풀어내기 위해 팀과 적극적으로 소통하며, 안정적이고 사용하기 쉬운 서비스를 만드는 프론트엔드 개발자로 성장하고자 합니다.
 
 ### Skill
 
@@ -53,70 +52,102 @@ import DownloadButton from "../../components/DownloadButton";
 
 ### Career
 
-#### 퀄리소프트 (2023.04 ~ 현재) | CRM Developer Team
+#### 퀄리소프트
 
-##### 1. CRM을 활용한 DX 개선
+**CRM Developer Team | Software Engineer**  
+2024.04 ~ 현재
 
-- SAP ERP와 CRM 간의 데이터 정합성을 확보하기 위해 Node.js 기반의 Proxy API 동기화 프로세스를 구축하였습니다.
-- 기존 엑셀의 수기 관리 방식을 React 기반 웹 시스템으로 전환하여 업무 효율성을 높이는 UI/UX를 개발하였습니다.
-- 복잡한 실적 및 매출 관련 로직을 Custom Hook으로 모듈화하여 연산 과정의 예외 케이스와 프론트엔드 오류를 방지하였습니다.
-- 팀 내 TypeScript 설정(tsconfig) 표준화를 주도하고 ESLint/Prettier 도입으로 코드 컨벤션을 통합하여 유지보수성을 향상시켰습니다.
+**CRM 웹 시스템 고도화 및 업무 프로세스 자동화**
 
-<small> React, TypeScript, .NET, IIS </small>
+##### 1. CRM 기반 업무 시스템 전환 및 DX 개선
 
-##### 2. 사내 휴가 관리 시스템 구축
+- 기존 엑셀 중심의 수기 관리 업무를 React 기반 CRM 웹 시스템으로 전환하여 업무 데이터 조회, 입력, 관리 프로세스를 개선하였습니다.
+- SAP ERP와 CRM 간 데이터 정합성 확보를 위해 Node.js 기반 Proxy API 동기화 프로세스를 구축하였습니다.
+- 고객사 업무 요구사항을 바탕으로 Rolling, MD 계산, 실적 및 매출 관리 모듈을 개발하였습니다.
+- 복잡한 계산 로직과 예외 케이스를 화면 단위에서 안정적으로 처리할 수 있도록 프론트엔드 로직을 구조화하였습니다.
+- 팀 내 TypeScript 설정 표준화 및 ESLint/Prettier 도입으로 코드 컨벤션 통합과 유지보수성을 개선하였습니다.
 
-수기 결재 방식의 불편함과 비효율을 해결하기 위해 기획부터 개발까지 전 과정을 주도하였습니다.
+**Tech Stack**  
+`React`, `TypeScript`, `Node.js`, `.NET`, `IIS`, `SAP ERP`, `CRM`
 
-- Vue.js를 활용하여 팀원 휴가 현황을 직관적으로 파악할 수 있는 대시보드 및 커스텀 캘린더를 개발하였습니다.
-- Microsoft Teams Webhook을 연동하여 휴가 신청 및 승인/반려 알림이 실시간으로 처리되는 자동화 프로세스를 구축하였습니다.
+##### 2. CRM 프론트엔드 구조 전환 및 성능 개선
 
-<small> Vue.js, Microsoft Teams Webhook, Power Automate </small>
+- 기존 Vue + CDN 기반 페이지별 리소스 호출 구조를 React 앱 기반 구조로 전환하였습니다.
+- 페이지 단위로 분산되어 있던 화면 개발 방식을 컴포넌트 중심으로 재구성하여 유지보수성과 확장성을 개선하였습니다.
+- 정적 리소스 제공 방식을 Azure CDN으로 마이그레이션하여 리소스 로딩 지연 문제를 개선하였습니다.
+- Mocking 데이터, 불필요한 API 호출, 리소스 로딩 우선순위를 정리하여 웹 서비스 렌더링 속도를 약 70% 개선하였습니다. `10s → 3s`
 
-##### 3. SharePoint 연동 첨부파일 관리 시스템 구축
+**Tech Stack**  
+`React`, `TypeScript`, `Azure CDN`, `Azure`, `CRM`
 
-- SharePoint REST API를 래핑한 첨부파일 관리 전용 Proxy 서버를 개발하였습니다.
-- 기업 내 기존 인프라인 SharePoint를 활용하여 공정 단계별 파일 업로드/다운로드 시스템을 구축하였습니다.
-- 다중 파일 업로드, 진행률(Progress) 시각화 등 사용자 편의성을 고려한 UI를 구현하였습니다.
+##### 3. 사내 휴가 관리 시스템 구축
 
-<small> React, Node.js, SharePoint REST API </small>
+- 수기 결재 기반의 휴가 신청 및 승인 프로세스를 웹 기반 디지털 워크플로우로 전환하였습니다.
+- 기획부터 개발까지 담당하여 팀원 휴가 현황을 확인할 수 있는 대시보드 및 커스텀 캘린더를 구현하였습니다.
+- Microsoft Teams Webhook을 연동하여 휴가 신청, 승인, 반려 알림을 실시간으로 처리하는 자동화 프로세스를 구축하였습니다.
+- 반복적인 수기 확인과 별도 커뮤니케이션 비용을 줄여 내부 업무 처리 효율을 개선하였습니다.
+
+**Tech Stack**  
+`Vue.js`, `Microsoft Teams Webhook`, `Power Automate`
+
+##### 4. SharePoint 연동 첨부파일 관리 시스템 구축
+
+- SharePoint REST API를 활용한 CRM 내부 첨부파일 업로드 및 다운로드 기능을 구현하였습니다.
+- SharePoint API 호출을 래핑한 전용 Proxy 서버를 개발하여 CRM과 기존 사내 인프라 간 연동 구조를 구축하였습니다.
+- 공정 단계별 파일 관리가 가능하도록 다중 파일 업로드, 다운로드, 진행률 표시 UI를 구현하였습니다.
+- 사용자가 별도 플랫폼으로 이동하지 않고 CRM 내에서 파일을 관리할 수 있는 업무 흐름을 구축하였습니다.
+
+**Tech Stack**  
+`React`, `Node.js`, `SharePoint REST API`, `CRM`
 
 ### InternShip
 
-대학생일때 학업과 병행했던 인턴십입니다.
+#### To-infinity
 
-##### To-infinity (23.12 ~ 24.03)
+**Frontend Developer Intern**  
+2023.12 ~ 2024.03
 
-Frontend
+**Flutter 기반 모바일 앱 프론트엔드 E2E 개발**
 
-- Folaio 디자인 시스템 구축
-- Folaio Flutter 기반 앱 출시
-- 온라인 실시간 과외 서비스 어드민 개발
+- SNS 서비스 Folaio의 Flutter 기반 모바일 앱 프론트엔드 개발을 담당하였습니다.
+- 서비스 기획 요구사항을 바탕으로 주요 화면 UI/UX 및 핵심 기능을 구현하였습니다.
+- 앱 내 공통 UI 패턴을 정리하여 디자인 시스템 및 공통 위젯 구조를 구축하였습니다.
+- Flutter 앱 출시 과정에 참여하며 구현부터 배포까지 모바일 서비스 개발 흐름을 경험하였습니다.
+- 온라인 실시간 과외 서비스의 어드민 화면을 개발하였습니다.
+
+**Tech Stack**  
+`Flutter`, `Dart`, `Frontend`, `Admin`
 
 ### Experience
 
-개인 프로젝트 개발 및 활동
+#### 포유테일
 
-#### 꼬순내
+**반려동물 맞춤형 정보 제공 및 커뮤니티 서비스**
 
-반려동물 커뮤니티 사이트 - [https://www.kkosunnae.com/](https://www.kkosunnae.com/)
+- Supabase Auth와 PostgreSQL 기반으로 인증, 사용자 프로필, 게시글, 댓글 데이터 관리 구조를 설계하였습니다.
+- Row Level Security 정책을 적용하여 사용자별 데이터 접근 권한을 제어하였습니다.
+- 클라이언트에서 안전하게 CRUD를 처리할 수 있도록 인증 및 데이터 접근 흐름을 구성하였습니다.
+- Pinecone 벡터 검색을 연동하여 반려동물 특성 및 사용자 입력 기반 유사도 검색 기능을 구현하였습니다.
+- Cloudflare 환경으로 배포 구조를 전환하여 Edge 기반 라우팅 및 정적 리소스 제공 성능을 개선하였습니다.
 
-- Firebase Authentication을 연동하여 Google 소셜 로그인 및 사용자 세션 관리 기능을 구현하였습니다.
-- Firestore NoSQL DB를 설계하여 CRUD 데이터를 효율적으로 관리하였습니다.
-- 계층형 데이터 구조를 활용하여 댓글과 대댓글 기능을 구현했고 users테이블로 사용자를 관리함으로 실시간 프로필 조회로 사용자 간의 상호작용을 강화하였습니다.
-- Cloudinary API와 이미지 최적화 함수를 생성하여 빠른 로드 및 이미지 최적화를 실행하였습니다.
+**Tech Stack**  
+`Next.js`, `TypeScript`, `Supabase`, `PostgreSQL`, `Pinecone`, `Cloudflare`
 
 #### Dominest
 
-교내 기숙사 관리 시스템 - [Github](https://github.com/DominestSKHU)
+**교내 기숙사 관리 시스템** - [Github](https://github.com/DominestSKHU)
 
 - 교내 기숙사와 직접 서비스 공급 계약을 체결하여 실제 운영 시스템을 구축하였습니다.
-- Next.js 기반의 초기 아키텍처 설계 및 환경 구축을 주도하였습니다.
-- 재사용성을 고려한 컴포넌트 주도 개발(CDD) 도입으로 유지보수 효율을 높이며 UI 일관성을 확보하였습니다.
-- IIS 파일 서버 및 교내 입출입 시스템과 연동된 통합 관리 기능 개발.
+- Next.js 기반 초기 구조 설계 및 개발 환경 구축을 담당하였습니다.
+- 재사용성을 고려한 컴포넌트 주도 개발 방식으로 UI 일관성과 유지보수성을 확보하였습니다.
+- IIS 파일 서버 및 교내 입출입 시스템과 연동된 통합 관리 기능을 개발하였습니다.
 
-#### GDSC(1기)
+**Tech Stack**  
+`Next.js`, `React`, `TypeScript`, `IIS`
 
-웹프론트엔드 파트 - [Github](https://github.com/GDG-on-Campus-SKHU)
+#### GDSC 1기
 
-- Google Developer Student Club 대학생 커뮤니티로, 정기 밋업에 참여하여 지식을 교류했습니다.
+**Web Frontend Part** - [Github](https://github.com/GDG-on-Campus-SKHU)
+
+- Google Developer Student Club 웹 프론트엔드 파트로 활동하였습니다.
+- 정기 밋업과 스터디에 참여하며 웹 개발 지식 공유 및 협업 경험을 쌓았습니다.
