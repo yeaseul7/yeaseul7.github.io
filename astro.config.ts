@@ -30,6 +30,7 @@ export default defineConfig({
             "js/arguments_property",
             "js/prototype",
             "js/class",
+            "js/scope",
             "js/closure",
             "js/hoisting",
             "js/javasciprt_para",
@@ -43,6 +44,11 @@ export default defineConfig({
             "js/v8-bytecode",
             
           ],
+          collapsed: true,
+        },
+        {
+          label: "Algorithm",
+          autogenerate: { directory: "algorithm" },
           collapsed: true,
         },
         {
