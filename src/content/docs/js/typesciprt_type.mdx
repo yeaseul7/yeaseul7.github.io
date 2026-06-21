@@ -1,0 +1,251 @@
+---
+title: TypeScript의 타입 시스템
+layout: ../../../layouts/BlogPost.astro
+---
+
+## TypeScript
+
+typescript는 코드 컴파일 시점에 타입을 체크할 뿐이고 실제 코드가 돌아가는 런타임에는 js로 변환되어 실행된다. 따라서 타입스크립트는 js의 상위 집합이라고 볼 수 있다.
+
+## TypeScript의 타입 종류
+
+- Boolean : true, false
+- Number : js의 number와 같다 (int, float, double 등 구분 없음 / 16진수, 2진수, 10진수 리터럴 가능)
+
+```javascript
+let decimal: number = 6;
+let hex: number = 0xf00d;
+let binary: number = 0b1010;
+let octal: number = 0o744;
+```
+
+- String : ("), ('), 템플릿 문자열 다 포함
+
+```javascript
+let color: string = "blue";
+let fullName: string = `sky` + color + ` is my favorite color.`;
+
+function printName(firstName: string, lastName: string): string {
+  return `${firstName} + ${lastName}`;
+}
+```
+
+- Array
+  - `[]` : 타입[] 형태로 선언
+  - `Array<type>` : 제네릭 타입으로 선언
+
+```javascript
+let list: number[] = [1, 2, 3];
+let list: Array<number> = [1, 2, 3];
+
+function printList(...args : number[]): number[] {
+  return args;
+}
+
+printList(1, 2, 3); // [1, 2, 3]
+```
+
+- Tuple : 크기와 타입이 고정된 배열
+
+```javascript
+let x: [string, number];
+x = ["hello", 10];
+// OK
+x = [10, "hello"];
+// Error: Type 'number' is not assignable to type 'string'
+
+//2차원 튜플
+let y: [string, number][];
+y = [["hello", 10], ["world", 20]];
+// OK
+y = [["hello", 10], [20, "world"]];
+// Error: Type 'number' is not assignable to type 'string'
+
+//값 자체를 고정도 가능
+let z: [string, 10];
+z = ["hello", 10];
+// OK
+z = ["hello", 20];
+// Error: Type '20' is not assignable to type '10'
+```
+
+tuple은 `.push()`나 `.splice()`같은 메서드로 값을 추가하는 것을 막지 못한다.
+js에서 배열은 정해진 길이가 없고 ts로 정의한 배열은 길이가 고정되어있다.
+하지만 ts는 컴파일 시점에 타입체크를 하고 사라진다. 이 시점에서 배열에 값이 추가된다고 한들 고정된 길이가 아니기때문에 오류를 발생시키지 않는다.
+
+이런 경우
+
+```javascript
+const myTuple = [1, "hello"] as const;
+// myTuple.push(300); // 여기서 바로 에러 발생!
+// 리터럴(Literal) 값
+```
+
+위와 같이 대처하는 방법이 있다.
+
+- Enum : tuple하고 비슷하게 특정 값을 고정하는 또다른 독립된 자료형
+  - 인덱스 번호로 접근 가능하다.
+  - 인덱스 개념을 변경할수도 있다.
+
+```javascript
+enum Color {
+  Red,
+  Green,
+  Blue,
+}
+let c: Color = Color.Green;
+```
+
+```javascript
+enum Color {
+  Red = 3,
+  Green,
+  Blue,
+}
+let c: Color = Color.Green; // 4
+let d: Color = Color.Blue; // 5
+```
+
+- Object : js에서는 object 객체, 배열, 함수를 모두 object로 취급하는데, 이와 비슷하게 ts도 type of 연산자가 객체의 타입을 추론할 때 객체 리터럴, 배열, 함수 모두 object로 취급한다.
+  - object가 원시 타입(string, number 등)을 제외한 나머지(객체, 배열, 함수 등)를 의미
+
+⚠️ 주의할 점은 ts에서 object 타입은 특정 대상이 객체 타입이라는 것만 알지 그 안에 무엇이 들어있는지는 모른다.
+
+```javascript
+let obj: object = { name: "John", age: 30 };
+obj.name; // Error: Property 'name' does not exist on type 'object'.
+```
+
+그래서 위의 예시와 같은 경우 컴파일러는 object라고 선언한건 이해하지만 그 안에 뭐가 들어있는지는 타입을 알 수 없기 때문에 에러를 발생시킨다. <br/>
+🫨 typescript는 런타입 에러 발생 가능성을 원천 봉쇄하려고 한다.
+
+이런 경우 `interface`가 사용된다.
+
+```javascript
+interface Person {
+  name: string;
+  age: number;
+}
+
+const jewoo : Person = {
+  name: "Jewoo",
+  age: 30,
+};
+```
+
+혹은 type alias를 사용해서도 가능하다.
+
+```javascript
+type Person = {
+  name: string;
+  age: number;
+};
+
+const jewoo : Person = {
+  name: "Jewoo",
+  age: 30,
+};
+```
+
+- Any : 모든 타입을 허용한다는 의미
+  - 너무 남발하면 ts의 장점이 사라지기 때문에 지양하는 편이 좋다.
+  - any를 너무 쓰고 싶다면 unknown을 쓰는 것을 추천한다.
+
+```javascript
+let value: any = 42;
+console.log(any.length); // undefined
+```
+
+- Unknown : any랑 비슷하지만 알 수 없을때에 에러를 발생시킨다.
+
+```javascript
+let value: unknown = { name: "nico" };
+console.log(value.name); // Error: Object is of type 'unknown'.
+```
+
+이런경우
+
+```javascript
+let value: unknown = { name: "nico" };
+
+// 객체인지 확인하고, 그 안에 name이라는 속성이 있는지 확인
+if (typeof value === "object" && value !== null && "name" in value) {
+  console.log((value as any).name); // 이런 식으로 안전하게 접근
+}
+```
+
+- Null/Undefined : js에서 undefined가 하나의 타입이듯이 ts에서도 undefined는 하나의 타입이다. null도 마찬가지이다. (strictNullChecks: false일 때만 유효)
+  - null과 undefined는 다른 타입의 하위 타입이다.
+  - number나 string 같은 타입의 변수에 null을 할당할 수 있다.
+
+#### strictNullChecks 옵션
+
+이 옵션은 갑자기 null이나 undefined가 할당되어서 오류가 발생하는 것을 막기 위해 만들어졌다.
+
+- on : 각각 타입에 맞는 값만 엄격하게 들어갈 수 있고 null은 존재할 수 없다.
+- off : Type || null || undefined -> 이게 union types
+
+- Never : 자료를 담기 위한 타입이 아니라, 절대 발생하지 않는 타입을 의미
+  - 즉, 항상 오류를 발생 시키거나 절대 반환하지 않는 타입을 의미한다.
+
+```javascript
+function error(message: string): never {
+  throw new Error(message);
+}
+```
+
+---
+
+## AI 질문
+
+### 질문 1. interface와 type alias의 차이점은 무엇이며, 어떤 상황에서 각각을 선택하시겠습니까?
+
+interface는 object타입을 사용하고자 할때 내부 타입 추측불가에 따른 오류를 예방하고자 사용합니다 type alias또한 같은 시점에 사용합니다.
+
+하지만 interface는 기존의 inferface이외에 더 필요한 타입이나 값이 있을때 효과적으로 더할 수 있습니다.
+
+### AI 답변
+
+점수: 70/100
+
+피드백: 개념은 맞지만, 결정적인 키워드가 빠졌어.
+
+Good: 인터페이스의 확장성을 잘 짚었어.
+
+Better: '선언 병합(Declaration Merging)'이라는 단어를 꼭 넣어줘. 인터페이스는 같은 이름으로 여러 번 선언하면 하나로 합쳐지는데, 이게 라이브러리를 사용하거나 확장할 때 엄청나게 강력한 기능이거든. type은 이게 불가능하다는 점을 비교해주면 완벽해.
+
+면접 팁: "인터페이스는 객체 지향적인 설계를 할 때 선언 병합과 클래스 구현(implements)을 위해 사용하고, 타입 별칭은 유니온 타입이나 튜플 등 더 복잡한 타입 조합을 위해 사용합니다."라고 깔끔하게 정리해 봐.
+
+### 질문 2. strictNullChecks: true 옵션을 사용했을 때, 타입스크립트가 어떻게 런타임 에러를 방지하는지 그 메커니즘을 설명해주세요.
+
+보통 예상하지 못한 곳에서 null이 나온다면 오류를 뱉어서 갑자기 프로그램이 멈춰버리는 현상이 생길 수 있습니다. 그래서 typescript는 기본적으로 Type | null | undefined라고 가정하지만
+
+strictNullChecks: true을 사용하면 컴파일 단계에서 타입을 꼼꼼하게 추론하고 타입을 추론할 수 없는 경우 오류를 뱉습니다.
+
+### AI 답변
+
+점수: 65/100
+
+피드백: '현상'은 잘 알고 있는데 '원리' 설명이 조금 부족해.
+
+Good: 왜 이 옵션이 중요한지 그 필요성을 잘 알고 있어.
+
+Better: '타입 좁히기'와 '제어 흐름 분석'을 언급해줘.
+
+면접 팁: "TS 컴파일러가 제어 흐름 분석을 통해 null이나 undefined가 포함될 가능성이 있는 경로를 파악합니다. strictNullChecks가 켜져 있으면, 개발자가 명시적으로 if문 등을 통해 타입을 좁히지 않는 이상, 존재하지 않는 속성에 접근하는 코드를 컴파일 타임 에러로 처리해 버립니다. 덕분에 런타임까지 에러가 도달하지 못하게 막는 것이죠."
+
+### 질문 3. unknown 타입은 any와 어떻게 다르며, 왜 실무에서는 any보다 unknown을 사용하는 것을 권장하나요?
+
+any는 모든 타입을 허용하기 때문에 너무 남발할 경우에 타입 추론이 어려워져서 typescript를 사용하는 의미가 없어집니다. 하지만 unknown의 경우 type of 등으로 타입 검사를 강제로라도 시켜서 타입 오류를 발생시키는 것을 막기 때문에 코드가 길어지더라도 안정성을 생각한다면 any보다 unkown을 사용할것을 권장합니다.
+
+### AI 답변
+
+점수: 85/100
+
+피드백: 아주 좋아! 실무적인 관점을 잘 알고 있어.
+
+Good: any가 타입 안전성을 해친다는 점과 unknown의 안전함을 정확히 비교했어.
+
+Better: unknown은 '타입 단언(Type Assertion)'이나 '타입 가드(Type Guard)'를 통해서만 값을 사용할 수 있다는 점을 강조해 봐.
+
+면접 팁: "any는 '검사를 포기하는' 도망쳐 나온 문법이라면, unknown은 '검사를 나중에 하겠다'고 유예하는 보수적인 타입입니다."라는 비유를 섞어주면 면접관들이 아주 좋아할 거야.
