@@ -32,6 +32,7 @@ export default defineConfig({
             "js/class",
             "js/scope",
             "js/typescript",
+            "js/typesciprt_type",
             "js/closure",
             "js/hoisting",
             "js/javasciprt_para",
