@@ -31,6 +31,7 @@ export default defineConfig({
             "js/prototype",
             "js/class",
             "js/scope",
+            "js/typescript",
             "js/closure",
             "js/hoisting",
             "js/javasciprt_para",
