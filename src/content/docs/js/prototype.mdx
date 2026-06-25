@@ -59,6 +59,10 @@ const circle2 = new Circle(2);
 - 함수의 경우 -> `Function.prototype`
 - 인스턴스의 경우 -> 생성자 함수의 `prototype` 객체
 
+<pre> 과거에는 __proto__를 주로 사용하였지만 최근에는 Object.getPrototypeOf()와 Object.setPrototypeOf()를 사용한다. <br/>
+__proto__는 접근자 프로퍼티 이기때문에 해당 속성에 접근하면 그 객체의 부모를 강제로 바꿀 수 있다. -> Prototype Pollution <br/>
+또한 Hidden Class 기법에 방해의 주된 요인이다 </pre>
+
 **`prototype` 프로퍼티**
 
 - 함수 객체만 가지고 있는 일반 프로퍼티
@@ -196,8 +200,8 @@ console.log(me.hasOwnProperty("name")); // true
 
 ### 객체 리터럴 방식
 
-javascript 엔진은 객체 리터럴로 생성하는 코드를 만나면 내부적으로 Object.create(Object.prototype)와 유사한 방식으로 객체를 생성한다.
-Object.create()는 함수 객체로 일반 객체와 다르게 prototype 프로퍼티가 있다.
+JavaScript 엔진은 객체 리터럴로 객체를 생성할 때 내부적으로 Object.prototype을 [[Prototype]]으로 갖는 객체를 만든다. 이는 Object.create(Object.prototype)로 객체를 생성하는 방식과 유사하게 이해할 수 있다.
+Object.create()는 Object 생성자 함수의 정적 메서드이며 인자로 전달받은 객체를 새 객체의 [[Prototype]]으로 설정한다.
 
 리터럴 표현 방식으로 만들어진 객체는 추상연산으로 인해 반드시 객체를 생성한 생성자 함수와 연결되지 않을 수 있다.
 
