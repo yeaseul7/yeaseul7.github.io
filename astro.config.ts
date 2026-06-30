@@ -31,6 +31,7 @@ export default defineConfig({
             "js/prototype",
             "js/class",
             "js/scope",
+            "js/callstack",
             "js/typescript",
             "js/typesciprt_type",
             "js/closure",
