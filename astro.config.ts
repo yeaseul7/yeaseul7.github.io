@@ -26,27 +26,7 @@ export default defineConfig({
 
         {
           label: "Javascript",
-          items: [
-            "js/arguments_property",
-            "js/prototype",
-            "js/class",
-            "js/scope",
-            "js/callstack",
-            "js/typescript",
-            "js/typesciprt_type",
-            "js/closure",
-            "js/hoisting",
-            "js/javasciprt_para",
-            "js/javascript_func",
-            "js/javascrpt_func_this",
-            "js/iterable",
-            "js/array_like_object",
-            "js/arrow_function",
-            "js/single-thread",
-            "js/event_loop",
-            "js/v8-bytecode",
-            
-          ],
+          autogenerate: { directory: "js" },
           collapsed: true,
         },
         {
