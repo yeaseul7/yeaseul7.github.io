@@ -1,0 +1,15 @@
+---
+interface Props {
+  url: string;
+  label: string;
+}
+
+const { url, label } = Astro.props;
+---
+
+<a class="download-link" href={url} download>
+  <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16">
+    <path d="M5 20h14v-2H5v2ZM13 4h-2v8.2L7.4 8.6 6 10l6 6 6-6-1.4-1.4-3.6 3.6V4Z"></path>
+  </svg>
+  <span>{label}</span>
+</a>

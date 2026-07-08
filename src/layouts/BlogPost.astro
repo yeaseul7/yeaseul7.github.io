@@ -30,7 +30,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site).toString();
     <!-- Naver search console -->
     <meta name="naver-site-verification" content="6724760dddce453fb49399f0a1133ab8c91d000f" />
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-CZD8XP5VE0"></script>
+    <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-CZD8XP5VE0"></script>
     <script
       is:inline
       set:html={`
@@ -42,6 +42,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site).toString();
     />
     <meta name="google-adsense-account" content="ca-pub-3760441216253528" />
     <script
+      is:inline
       async
       src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3760441216253528"
       crossorigin="anonymous"></script>

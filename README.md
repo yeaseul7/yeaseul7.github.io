@@ -1,25 +1,32 @@
-<div align="center">
-  <h1>Ssaong Dev Blog</h1>
-</div>
+# Ssaong Dev Blog
 
-:::note
+Astro Starlight 기반 개발 블로그입니다.
 
-A `note` aside with a [link](#_) in the content.
+## 실행
 
-:::
+```bash
+npm install
+npm run dev
+```
 
-:::tip
+## 검증
 
-A `tip` aside with a [link](#_) in the content.
+```bash
+npm run lint
+npm run build
+```
 
-:::
+## 글 작성
 
-:::caution
+문서는 `src/content/docs` 아래에 MDX/Markdown 파일로 작성합니다.
 
-A `caution` aside with a [link](#_) in the content.
+```md
+---
+title: 문서 제목
+description: 문서 설명
+---
+```
 
-:::
+## 배포
 
-:::danger
-
-A `danger` aside with a [link](#_) in the content.
+`main` 브랜치에 push하면 GitHub Actions가 `npm run build`를 실행하고 `dist/` 산출물을 GitHub Pages로 배포합니다.

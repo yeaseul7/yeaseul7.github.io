@@ -4,19 +4,31 @@ title: 이벤트 루프
 ---
 
 import { Image } from "astro:assets";
-import eventLoopImg from "../../../assets/images/event_loop/event_loop.png";
+import eventLoopImg from "../../../assets/images/event_loop/eventloop.png";
 
 ### event loop
-javascript는 싱글스레드이다.    
-하지만 브라우저를 보면 애니메이션 효과와 네트워크 요청이 동시에 이루어지는 것 처럼 보인다. 
+JavaScript는 기본적으로 싱글 스레드 언어다.
+<pre>JavaScript 엔진은 한 번에 하나의 작업만 실행할 수 있다.</pre>
 
-이것을 가능하게 하는것이 브라우저에 내장된 `event loop`이다.    
-`event loop`를 통해 js는 동시성을 지원한다. 
+그런데 브라우저에서 동작하는 화면을 보면 애니메이션이 실행되는 동안 네트워크 요청도 처리되고 사용자의 클릭 이벤트도 동시에 반응하는 것처럼 보인다.
 
-이벤트 루프는 콜스택에 쌓여있는 작업이 있는지 확인한다.    
-그리고 task queue에 작업이 있고 콜스택이 비어있을경우 FIFO로 콜스택으로 이동시켜 작업을 진행한다. 
+이것이 가능한 이유는 브라우저가 제공하는 Web API와 이벤트 루프가 함께 동작하기 때문이다.
 
-### event loop & browser
+`setTimeout, DOM 이벤트, 네트워크 요청` 같은 작업은 JavaScript 엔진이 직접 계속 붙잡고 처리하지 않는다.<br/>
+이런 작업들은 브라우저의 Web API 영역으로 전달되고 JavaScript 엔진은 콜스택에 있는 다음 작업을 계속 실행한다.
+
+Web API에서 작업이 완료되면 그 작업의 콜백 함수는 바로 실행되지 않고 task queue에 들어간다.
+
+이벤트 루프는 콜스택과 task queue를 계속 확인한다.
+
+콜스택이 비어 있고 task queue에 대기 중인 작업이 있다면<br/>
+이벤트 루프는 task queue에서 가장 먼저 들어온 작업을 꺼내 콜스택으로 이동시킨다.<br/>
+그때 콜스택에 올라간 콜백 함수가 실행된다.
+
+이벤트 루프는 `콜스택이 비었을 때 대기 중인 작업을 실행할 수 있도록 순서를 조율하는 역할`을 한다.
+
+이 구조 덕분에 JavaScript는 싱글 스레드로 동작하면서도 브라우저 환경에서 비동기 작업을 처리할 수 있다.
+
 <Image
   src={eventLoopImg}
   alt="이벤트 루프와 브라우저"
@@ -27,46 +39,175 @@ javascript는 싱글스레드이다.
   loading="lazy"
   decoding="async"
 />
+### event loop & browser
 
-javascript는 실행 컨텍스트에서 살펴보았듯이 코드를 해석하면서 실행 컨텍스트 스택에 pop, push 한다.     
-이때 실행 컨텍스트 스택이 위의 `콜스택`이다.    
-javascript는 싱글스레드인만큼 콜스택이 하나로 이루어져있다. 
+JavaScript 엔진은 **코드를 평가하고 실행하면서 실행 컨텍스트를 생성**한다.<br/>
+생성된 후에는 실행 컨텍스트 스택에 push되고 실행이 끝나면 pop된다.
 
-힙은 메모리가 저장되는 공간이다. 
+이 `실행 컨텍스트 스택`이 흔히 말하는 `콜스택`이다.
 
-소스코드 평가와 실행을 빼고는 브라우저 또는 Node.js가 담당한다.
+JavaScript는 **싱글 스레드**로 동작하기 때문에 콜스택이 하나다.<br/>
+그래서 하나의 동작만 할 수 있다.
 
-setTimeout은 비동기로 동작한다. 이 작업을 평가하고 실행하는 것은 javascript엔진이 한다.    
-하지만 타이머 설정이나 콜백 함수 등록 같은 작업은 node.js와 브라우저가 한다.    
-이때 필요한게 `태스크 큐 (task queue)`이다.
+<i>반면 힙은 메모리 공간이다.</i>
 
+JavaScript 엔진은 코드의 평가와 실행을 담당하고,<br/>
+타이머, 네트워크 요청, DOM 이벤트 감지 작업은 `브라우저`나 `Node.js 런타임`이 담당한다.
 
-### task queue
+예를 들어 setTimeout 코드를 만나면 JavaScript 엔진은 setTimeout 호출한다.<br/>
+하지만 지정된 시간을 직접 세거나 콜백 함수를 바로 실행하지는 않는다.
 
-비동기 함수 혹은 이벤트 핸들러가 일시적으로 보관되는 영역이다.
+타이머 설정과 콜백 등록은 브라우저 또는 Node.js 런타임이 맡아서 처리한다.<br/>
+지정된 시간이 지나면 해당 콜백 함수는 바로 콜스택으로 들어가는 것이 아니라 task queue에 들어간다.
 
-콜스택은 함수들이 쌓이는 곳, task queue는 비동기 작업이 완료될때 대기 시키는 곳이다.
+이후 이벤트 루프는 콜스택이 비었는지 계속 확인한다.<br/>
+콜스택이 비어 있고 task queue에 대기 중인 콜백이 있다면 이벤트 루프는 가장 먼저 들어온 콜백을 콜스택으로 이동시킨다.
 
-### event loop 와 task queue 실행 예시
+그때 콜스택에 올라간 콜백 함수가 JavaScript 엔진에 의해 실행된다.
+
+### Task Queue
+
+Task Queue는 비동기 작업이 완료된 뒤 실행되어야 할 콜백 함수가 일시적으로 대기하는 공간이다.<br/>
+(정확히는 Macrotask Queue라고도 부른다. 이는 Promise가 대기하는 Microtask Queue와 다르다.)
+
+콜스택은 현재 실행 중인 함수들이 쌓이는 곳<br/>
+Task Queue는 비동기 작업이 완료된 후 실행을 기다리는 콜백 함수들이 대기하는 곳이다.
+
+### Event Loop와 Task Queue 실행 예시
 
 ```javascript
 function foo() {
- console.log('foo');
+  console.log('foo');
 }
+
 function bar() {
- console.log('bar');
+  console.log('bar');
 }
-setTimeout(foo, 0); // 0초(실제는 4ms) 후에 foo 함수가 호출된다.
+
+setTimeout(foo, 0);
 bar();
 ```
 
-1. 전역 코드 평가 -> 전역 실행 컨텍스트 생성 -> 콜스택 push
-2. 전역 코드 실행 -> setTimeout 호출 -> setTimeout 실행 컨텍스트 생성 -> 콜스택 push
-3. setTimeout 실행 -> 브라우저에게 특정 시간 이후에 등록하도록 설정 -> 타이머 만료시 태스크 큐에 등록하는 일은 브라우저가
-4. 브라우저 내의 타이머가 만료되면(최소 4ms 후), 브라우저는 콜백 함수 foo를 **태스크 큐(Task Queue)에 푸시(Push)**한다. (이때 바로 실행되는 것이 아니라 대기 상태가 된다.)
-5. bar 함수 호출 -> bar 실행 컨텍스트 생성 -> 콜스택 push 
-> 여기서 bar가 콜스택에서 일하고 있을때 foo의 타이머가 끝난다고 해도 콜스택이 비어있을 경우 태스크 큐에서 꺼내져서 실행되는것이 원칙이라 foo는 계속 기다려야 한다.    
-그리고 4번과 5번은 동시에 실행된다.
-6. 전역 코드실행 종료 -> 전역 실행 컨텍스트가 콜스택에서 pop 
-7. 비어있는 콜스택 감지 -> 태스크 큐에 있던 foo가 이벤트 루프에 의해 콜스택으로 push -> 실행
+1. 전역 코드가 평가되고 전역 실행 컨텍스트가 생성되어 콜스택에 push된다.
+2. 전역 코드가 실행되면서 `setTimeout(foo, 0)`이 호출된다.
+3. `setTimeout` 실행 컨텍스트가 `콜스택에 push`된다.
+4. `setTimeout`은 브라우저의 타이머 기능에게 `foo` 콜백을 일정 시간 이후 실행하도록 맡긴다.
+5. `setTimeout` 실행이 끝나고 콜스택에서 pop된다.
+6. 이어서 `bar()`가 호출되고 `bar` 실행 컨텍스트가 콜스택에 push된다.
+7. `bar` 함수 안의 `console.log('bar')`가 실행된다.
+8. `bar` 실행이 끝나고 콜스택에서 pop된다.
+9. 전역 코드 실행이 끝나고 전역 실행 컨텍스트가 콜스택에서 pop된다.
+10. 타이머가 만료되면 브라우저는 콜백 함수 foo를 Task Queue에 push한다.<br/>
+(이 과정은 6~9번 과정이 메인 스레드에서 일어나는 동안 백그라운드에서 병렬로 진행된다.)
+11. 이벤트 루프는 콜스택이 비어 있는지 확인한다.
+12. 콜스택이 비어 있으면 Task Queue에 있던 `foo`를 콜스택으로 이동시킨다.
+13. `foo`가 실행되면서 `console.log('foo')`가 출력된다.
 
+따라서 출력 순서는 다음과 같다.
+
+```javascript
+bar
+foo
+```
+
+`setTimeout(foo, 0)`은 `foo`를 즉시 실행한다는 뜻이 아니다. <br/>
+브라우저에게 타이머를 맡기고 타이머가 만료되면 `foo` 콜백이 Task Queue에 들어간다. <br/>
+이후 이벤트 루프가 콜스택이 비어 있는 것을 확인했을 때 `foo`가 실행된다.
+
+## Task Queue의 이원화 (Macro vs Micro)
+
+위에서 살펴본 Task Queue는 사실 **매크로태스크 큐(Macrotask Queue)**다.<br/>
+이벤트 루프는 비동기 작업을 모두 똑같이 처리하지 않고 명확한 우선순위가 존재한다.
+
+### 1. Microtask Queue (우선순위: 최상위)
+* **종류:** `Promise.then` `catch` `finally` `async` `await`
+* **특징:** 콜스택이 비면 무조건 `Microtask Queue` 큐를 먼저 확인하며 큐가 완전히 비워질 때까지 쌓여있는 모든 작업을 다 처리한다.
+
+### 2. Macrotask Queue (우선순위: 낮음)
+* **종류:** `setTimeout`, `setInterval`, DOM 이벤트 등
+* **특징:** 루프 한 번에 딱 '하나'의 태스크만 꺼내서 콜스택에 올린다.
+
+<pre>
+콜스택이 비어야 한다.
+Microtask Queue가 비어야 한다.
+그다음 Macrotask Queue에서 하나를 꺼낸다.
+</pre>
+
+```javascript
+console.log('1. Start');
+
+setTimeout(() => {
+  console.log('2. Timeout (Macrotask)');
+}, 0);
+
+Promise.resolve()
+  .then(() => {
+    console.log('3. Promise 1 (Microtask)');
+  })
+  .then(() => {
+    console.log('4. Promise 2 (Microtask)');
+  });
+
+console.log('5. End');
+```
+
+1. **동기 코드(Synchronous) 실행 주도**
+   - 최상단 `console.log('1. Start')`가 콜스택에 쌓이고 즉시 실행되어 출력
+   - `setTimeout`은 브라우저 Web API로 타이머 처리를 위임
+   - `Promise.then` 콜백은 **Microtask Queue**에 등록
+   - 최하단 `console.log('5. End')`가 콜스택에 쌓이고 즉시 실행되어 출력
+   - 전역 실행 컨텍스트까지 끝나면서 **Call Stack이 완전히 비워짐**
+
+2. **이벤트 루프의 Microtask Queue 우선 점검**
+   - 콜스택이 비자마자 이벤트 루프는 가장 우선순위가 높은 Microtask Queue를 확인.
+   - 큐에 있던 `3. Promise 1`이 실행되고 `4. Promise 2`까지 큐가 완전히 비워질 때까지 연속으로 콜스택에 올려 실행
+
+3. **최종 Macrotask Queue 실행**
+   - 마이크로태스크 큐까지 텅 빈 것을 확인 -> 대기 중이던 `2. Timeout` 콜백을 콜스택으로 이동시켜 실행
+
+---
+
+### AI 질문
+
+#### Q1. Microtask Queue가 실행되는 도중에 새로운 Microtask가 계속해서 추가된다면 이벤트 루프는 어떻게 동작하며, 이로 인해 어떤 문제가 발생할 수 있나요?
+
+<pre>
+ Microtask Queue가 비어야 그 다음인 Macrotask Queue에 있는것이 실행되기 때문에<br/>
+ 이벤트 루프는 계속 Microtask Queue가 비었는지만 감시하게 되고 script 실행이 멈출 수 있습니다.
+</pre>
+
+평가 점수: 85점! <br/>
+* 피드백: 이벤트 루프가 마이크로태스크 큐에 갇히게 된다는 인과관계를 아주 잘 짚었어. 여기에 블로그에 썼던 핵심 키워드인 "렌더링 파이프라인(화면 갱신)과 사용자 이벤트 차단", 그리고 슬님의 무기인 "OOM(Out Of Memory)" 현상이라는 전문 용어를 매칭하면 완벽해.
+
+🔥 시니어 레벨 튜닝 버전:
+
+"정확합니다. 이벤트 루프는 Microtask Queue가 완전히 비워질 때까지 계속해서 작업을 꺼내 처리하기 때문에, 중간에 새로운 마이크로태스크가 끊임없이 추가되면 큐가 비워지지 않아 그 자리에 갇히게 됩니다. 이로 인해 이벤트 루프가 다음 단계인 **UI 렌더링 파이프라인이나 Macrotask Queue로 넘어가지 못해 메인 스레드가 차단(Blocking)**됩니다. 결과적으로 사용자의 클릭 이벤트에 반응하지 못하고 화면 애니메이션이 멈추며, 심할 경우 브라우저가 버티지 못하고 OOM(Out Of Memory) 현상을 일으키며 탭이 뻗어버릴 수 있습니다."
+
+#### Q2. 브라우저가 화면을 새로 그리는 UI 렌더링 파이프라인은 이벤트 루프의 비동기 큐(Macro/Micro)들과 비교했을 때 정확히 어느 타이밍에 실행되나요?
+
+<pre>
+UI 렌더링 파이프라인은 Macro큐가 다 돌고 필요한 DOM과 element를 계산하여 마지막 타이밍에 실행됩니다.
+</pre>
+
+평가 점수: 50점 (방향성 교정 필요!)
+
+
+피드백: 아하, 이 부분은 순서가 살짝 꼬였어! 브라우저의 화면 갱신은 매크로태스크 큐가 다 돌고 난 뒤가 아니라, 'Call Stack이 비고 ➔ Microtask Queue가 완전히 비워진 직후'에 실행 여부가 결정돼. 매크로태스크는 한 루프에 딱 '하나'만 실행된 후 곧바로 이 렌더링 기회가 찾아오거든.
+
+🔥 시니어 레벨 튜닝 버전:
+
+"UI 렌더링 파이프라인은 하나의 Macrotask가 처리된 후, Call Stack과 Microtask Queue가 완전히 비워진 직후에 실행됩니다. 이벤트 루프는 매크로태스크를 한 번에 딱 하나만 꺼내 실행한 뒤 마이크로태스크 큐를 털어내고 , 브라우저의 화면 주사율(보통 16.7ms 주율)에 맞춰 화면을 새로 그릴지(Style, Layout, Paint) 결정합니다. 즉, 매크로태스크가 여러 개 쌓여있더라도 그 사이사이에 마이크로태스크가 다 끝나면 렌더링 파이프라인이 개입할 수 있는 타이밍이 주어집니다."
+
+#### Q3. setTimeout(fn, 0)을 실행했을 때, 메인 스레드의 코드가 아무리 빨리 끝나도 정확히 0ms 뒤에 실행되지 않는 이유를 브라우저 런타임 스펙 관점에서 설명해 주세요.
+
+<pre>
+setTimeout같은 비동기 함수는 실행하기 위해 브라우저 엔진에 등록되는 시간이 필요기 때문입니다. 
+</pre>
+
+평가 점수: 70점!
+
+피드백: 비동기 작업이 런타임 환경(Web API)을 거쳐 가야 한다는 직관은 아주 좋아. 면접관이 질문에서 '브라우저 런타임 스펙 관점'을 물어봤으니, 우리가 팩트 체크했던 "타이머 5회 중첩 시 최소 4ms 지연" 스펙과 "큐에서 대기하는 오버헤드"를 명확하게 두 갈래로 쪼개서 답해주면 면접관이 속으로 감탄할 거야.
+
+🔥 시니어 레벨 튜닝 버전:
+
+"두 가지 결정적인 이유가 있습니다. 첫째, setTimeout의 콜백 함수는 시간이 만료되어도 즉시 실행되는 것이 아니라 Macrotask Queue에 들어가 대기한 뒤, 앞선 동기 코드와 Microtask가 모두 처리되어 Call Stack이 비어야만 이벤트 루프에 의해 실행될 수 있기 때문입니다. 둘째, HTML5 명세(스펙)에 따르면 타이머가 5회 이상 중첩(nested)되는 상황일 경우, 브라우저는 강제적으로 최소 4ms의 지연 시간(Minimum Interval)을 적용하도록 규정하고 있습니다. 따라서 물리적인 0ms 처리는 스펙상 불가능합니다."

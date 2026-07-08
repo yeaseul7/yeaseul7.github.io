@@ -4,31 +4,28 @@ layout: ../../layouts/BlogPost.astro
 nocomment: true
 ---
 
-import ContactLink from "../../components/ContactLink";
-import DownloadButton from "../../components/DownloadButton";
+import ContactLink from "../../components/ContactLink.astro";
+import DownloadLink from "../../components/DownloadLink.astro";
 
-<DownloadButton client:load printMode={true} label="이력서 PDF로 저장" />
+<DownloadLink url="/doc/RESUME.pdf" label="이력서 PDF 다운로드" />
 
 ### Hello, Welcome to Ssaong 👋🏻
 
 안녕하세요, 부족함에 좌절하기보다 나아가는 프론트엔드 개발자 이예슬입니다.
 
 <ContactLink
-  client:load
   type="github"
   url="https://github.com/yeaseul7"
   label="Github"
 />
 
 <ContactLink
-  client:load
   type="email"
   url="mailto:cutie32769@gmail.com"
   label="Email"
 />
 
 <ContactLink
-  client:load
   type="web"
   url="https://yeaseul7.github.io/about/"
   label="Web"

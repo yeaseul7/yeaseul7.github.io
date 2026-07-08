@@ -3,18 +3,19 @@ import { defineConfig } from "astro/config";
 import starlightThemeNext from "starlight-theme-next";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
-import react from "@astrojs/react";
+import { unified } from "@astrojs/markdown-remark";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
 
 export default defineConfig({
   markdown: {
-    remarkPlugins: [remarkMath],
-    rehypePlugins: [rehypeKatex],
+    processor: unified({
+      remarkPlugins: [remarkMath],
+      rehypePlugins: [rehypeKatex],
+    }),
   },
   integrations: [
-    react(),
     starlight({
       credits: false,
       plugins: [starlightThemeNext()],
@@ -26,48 +27,48 @@ export default defineConfig({
 
         {
           label: "Javascript",
-          autogenerate: { directory: "js" },
           collapsed: true,
+          items: [{ autogenerate: { directory: "js" } }],
         },
         {
           label: "Algorithm",
-          autogenerate: { directory: "algorithm" },
           collapsed: true,
+          items: [{ autogenerate: { directory: "algorithm" } }],
         },
         {
           label: "Frontend",
-          autogenerate: { directory: "fe" },
           collapsed: true,
+          items: [{ autogenerate: { directory: "fe" } }],
         },
         {
           label: "Browser",
-          autogenerate: { directory: "browser" },
           collapsed: true,
+          items: [{ autogenerate: { directory: "browser" } }],
         },
         {
           label: "Computer Science",
-          autogenerate: { directory: "cs" },
           collapsed: true,
+          items: [{ autogenerate: { directory: "cs" } }],
         },
         {
           label: "Network",
-          autogenerate: { directory: "network" },
           collapsed: true,
+          items: [{ autogenerate: { directory: "network" } }],
         },
         {
           label: "Server",
-          autogenerate: { directory: "server-side" },
           collapsed: true,
+          items: [{ autogenerate: { directory: "server-side" } }],
         },
         {
           label: "Tip",
-          autogenerate: { directory: "tip" },
           collapsed: true,
+          items: [{ autogenerate: { directory: "tip" } }],
         },
         {
           label: "Retrospect",
-          autogenerate: { directory: "retrospect" },
           collapsed: true,
+          items: [{ autogenerate: { directory: "retrospect" } }],
         },
       ],
       social: [
@@ -138,21 +139,15 @@ export default defineConfig({
     sitemap({
       changefreq: "weekly",
       priority: 0.7,
-      serialize(item) {
-        // 각 URL에 lastmod 추가 (Google이 더 잘 읽을 수 있도록)
-        item.lastmod = new Date().toISOString();
-        return item;
-      },
-      // 사용하지 않는 네임스페이스 제거 (더 깔끔한 sitemap)
       namespaces: {
         news: false,
         video: false,
         image: false,
-        xhtml: true, // 다국어 지원이 필요하면 true 유지
+        xhtml: true,
       },
     }),
   ],
   site: "https://yeaseul7.github.io/",
   trailingSlash: "always",
-  outDir: "docs",
+  outDir: "dist",
 });
