@@ -137,6 +137,7 @@ export default defineConfig({
     }),
     mdx(),
     sitemap({
+      filter: (page) => !new URL(page).pathname.startsWith("/secret/"),
       changefreq: "weekly",
       priority: 0.7,
       namespaces: {

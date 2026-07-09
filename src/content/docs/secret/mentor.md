@@ -1,5 +1,11 @@
 ---
 title: 멘토링
+pagefind: false
+head:
+  - tag: meta
+    attrs:
+      name: robots
+      content: noindex,nofollow
 layout: ../../../layouts/BlogPost.astro
 nocomment: true
 ---

@@ -1,5 +1,283 @@
 ---
 layout: ../../../layouts/BlogPost.astro
 title: 참조 계수(Reference Counting)나 Mark-and-Sweep 같은 GC의 기본 동작 원리
+description: 참조 계수(Reference Counting)나 Mark-and-Sweep 같은 GC의 기본 동작 원리에 대한 JavaScript 정리. 핵심 개념, 동작 원리, 구현 관점을 실무 개발 관점에서 설명합니다.
 ---
 
+## Stack이란?
+
+Stack은 함수 실행을 관리하는 메모리 영역
+
+Stack은 `LIFO`구조이다.
+
+```javascript
+function foo() {
+  const a = 10;
+  bar();
+}
+
+function bar() {
+  const b = 20;
+}
+
+foo();
+```
+위의 코드를 `stack`관점으로 보면
+```
+1. foo() 호출
+Stack:
+[ foo의 실행 정보 ]
+
+2. foo 안에서 bar() 호출
+Stack:
+[ bar의 실행 정보 ]
+[ foo의 실행 정보 ]
+
+3. bar() 종료
+Stack:
+[ foo의 실행 정보 ]
+
+4. foo() 종료
+Stack:
+비어 있음
+```
+이렇게 실행된다 그리고 `bar`가 `foo`보다 먼저 종료되어야 한다. LIFO이기 때문에
+
+## Heap이란?
+
+> 오래 살아야 하거나 크기가 유동적인 데이터를 저장하는 메모리 영역
+
+객체, 배열, 함수 같이 함수가 끝난 뒤에도 참조될 수 있는 데이터는 Heap에 저장된다.
+
+```javascript
+function createUser() {
+  const user = {
+    name: "Kim",
+    age: 20,
+  };
+
+  return user;
+}
+
+const result = createUser();
+```
+
+위의 경우에 
+```
+Stack:
+result 변수 → Heap: { name: "Kim", age: 20 }
+```
+위와 같이 된다. 따라서 함수가 끝난 뒤에도 참조될 수 있다. 
+
+| 구분    | Stack           | Heap            |
+| ----- | --------------- | --------------- |
+| 역할    | 함수 호출 관리        | 객체나 동적 데이터 저장   |
+| 구조    | LIFO            | 자유롭게 할당/해제      |
+| 속도    | 빠름              | 상대적으로 느림        |
+| 크기    | 비교적 작음          | 비교적 큼           |
+| 관리 방식 | 자동 관리           | 언어에 따라 수동 또는 자동 |
+| 예시    | 지역 변수, 함수 호출 정보 | 객체, 배열, 동적 데이터  |
+
+
+C나 C++같은 경우에 Heap 메모리를 직접 관리해야된다. <br />
+즉, 직접 할당하고 해제해야된다. 안그러면 `Memory Leak`가 발생할 수 있다. 
+
+하지만 javascript는 엔진이 Heap을 만들고 Garbage Collector가 참조가 끊긴것을 찾아서 정리한다. 
+
+```javascript
+function outer() {
+  const number = 10;
+  const user = { name: "Kim" };
+
+  function inner() {
+    console.log(number);
+  }
+
+  return inner;
+}
+
+const fn = outer();
+fn();
+```
+
+```
+outer() 함수 호출 정보 → Stack에 쌓임
+number 같은 원시값 → 보통 실행 컨텍스트/스택 쪽에서 관리
+user 객체 → Heap에 저장
+inner 함수 → Heap에 저장될 수 있음
+inner가 number를 기억함 → Closure
+outer()가 끝나도 inner가 number를 참조하므로 관련 환경이 살아남음
+``` 
+이렇게 해석될 수 있다.
+
+## 메모리 제어 방식 1. Reference Counting
+
+> 객체를 지금 몇 군데에서 사용하고 있는지 숫자로 세다가 숫자가 0이되면 지우는 방식
+
+```
+const user = { name: "Kim" };
+
+[Heap]
+{ name: "Kim" }
+refCount: 1
+```
+이런 코드가 있으면 `{ name: "Kim" }`의 힙이 만들어진다. <br/>
+`user`는 `{ name: "Kim" }` **힙의 참조값을 가지고 있는다.** 값을 직접 들고있는게 아니다.
+
+```javascript
+let user1 = { name: "Kim" };
+let user2 = user1;
+
+user1 ─────┐
+           ├──▶ { name: "Kim" }
+user2 ─────┘     refCount: 2
+```
+`user1`과 `user2`는 같은 객체를 참조하게 된다.<br/>
+참조를 끊으면 refCount가 줄어들게 된다.
+
+#### 장점
+- 구현이 비교적 단순
+- 객체가 사라질 시점을 예측하기 쉬움
+- 참조 횟수가 0이 되면 즉시 해제 가능
+- C/C++처럼 자동 GC가 없는 언어에서도 구현 가능
+
+#### 단점
+- 참조가 복잡해지거나 자주 바뀌는 상황이라면 비용이 많이 든다. 
+- `Circular Reference`에 취약하다.
+```javascript
+let a = {};
+let b = {};
+
+a.friend = b;
+b.friend = a;
+
+a ─────▶ Object A ─────▶ Object B
+          ▲              │
+          │              ▼
+          └──────────────┘
+```
+
+이때 `a`와 `b`가 없어지면 
+```
+외부 변수 없음
+
+Object A ─────▶ Object B
+   ▲              │
+   │              ▼
+   └──────────────┘
+```
+이렇게 되면 아무도 접근할 수 없지만 서로 참조중이기 때문에 **refCount는 1**이다. 
+
+### strong reference와 week reference
+
+```javascript
+let user = { name: "Kim" };
+```
+이건 `strong reference` 이다. 이 경우 삭제할 수 없다. 
+
+보통 `객체 프로퍼티, 배열, Map, Set`는 강한참조다.
+```javascript
+const map = new Map();
+
+let user = { name: "Kim" };
+map.set(user, "data");
+
+user = null;
+```
+
+user가 null이어도 `Map ───▶ { name: "Kim" }` 이렇게 Map이 잡고 있어서 GC 대상이되지 않는다. 
+
+약한 참조는 보통 `WeakMap, WeakSet`이다.<br/> 
+그냥 map과 달리 weekmap은 약하게 잡는다.`WeakMap - - ▶ { name: "Kim" }`
+
+#### 언제 WeakMap을 선택하면 되나?
+**Map을 쓰는 경우:** <br/>
+key 목록을 순회해야 한다.<br/>
+size가 필요하다.<br/>
+데이터를 명확히 오래 보관해야 한다.<br/>
+
+**WeakMap을 쓰는 경우:**<br/>
+key가 객체다.<br/>
+key 객체가 사라지면 관련 데이터도 사라져도 된다.<br/>
+객체의 생명주기를 방해하면 안 된다.
+
+### javascript에서는
+Reachability(도달가능성) 기반의 `Mark-and-Sweep` GC가 대부분이다.
+
+> 루트에서 출발해서 도달할 수 있는 객체인가?
+
+```javascript
+let a = {};
+let b = {};
+
+a.friend = b;
+b.friend = a;
+
+a = null;
+b = null;
+```
+이런 코드가 있으면 
+
+<pre>
+전역 변수에서 Object A에 도달 가능한가? 아니오 <br/>
+전역 변수에서 Object B에 도달 가능한가? 아니오 <br/>
+콜 스택에서 접근 가능한가? 아니오
+</pre>
+
+Mark-and-Sweep 방식에서는 GC 대상이된다. 
+
+#### Mark-and-Sweep 알고리즘의 2단계 동작
+
+Mark 단계<br/>
+최상위 Root에서 출발해 연결된 참조를 따라서 내려가며 도달 가능한 모든 객체에 "사용 중" 마크를 남긴다. 
+
+Sweep 단계<br/>
+메모리 전체를 훑으며 마크가 찍히지 않은 고립된 객체를 전부 메모리에서 해제한다.
+
+---
+
+### AI 질문
+
+#### Q1. 자바스크립트 엔진이 Reference Counting 대신 Mark-and-Sweep을 표준으로 채택한 가장 결정적인 이유는 무엇인가요?
+> 참조 개수를 세는 방식의 GC 동작방식은 순환 참조에서 한계가 존재합니다. 순환참조할 경우 접근 불가능하되, 서로 연결되어있는경우 메모리 해제가 안되기 때문에 메모리 효율이 떨어질 수 있습니다. 하지만 Mark-and-Sweep은 접근 불가능 한 것을 도달할 수 없는 것으로 간주하여 GC의 대상이 되기 때문에 메모리 누수를 막을 수 있습니다.
+
+**🌟 75점**
+
+👍🏻 더 좋은 답변<br/>
+>Reference Counting은 객체를 참조하는 개수를 기준으로 메모리 해제 여부를 판단하기 때문에, 두 객체가 서로를 참조하는 순환 참조 상황에서는 외부에서 접근할 수 없어도 참조 개수가 0이 되지 않아 메모리 누수가 발생할 수 있습니다.<br/>
+>반면 Mark-and-Sweep은 전역 객체나 콜 스택 같은 GC Root에서 출발해 도달 가능한 객체를 표시하고, 도달하지 못한 객체를 제거 대상으로 판단합니다. 그래서 객체들끼리 서로 참조하고 있더라도 루트에서 도달할 수 없다면 GC 대상이 될 수 있습니다. 이 점이 Reference Counting보다 더 안정적인 이유입니다.
+
+#### Q2. 본문에서 WeakMap은 약한 참조를 해서 GC 대상이 된다고 하셨는데, 일반 Map과 비교했을 때 WeakMap만이 가지는 구조적 제약과 활용 사례는 무엇인가요?
+> 솔직히 구조적 제약은 잘 모르겠습니다. 하지만 일반 Map과 다르게 WeakMap은 약하게 연결되어있기 때문에 접근 불가능 할 경우 GC의 대상이 될 수 있습니다. Map은 보통 강한 참조를 가지고 있기 때문에 null이 되어도 GC대상이 되지 않습니다. 만약 참조가 끊어져서 없어져도 되는 객체라면 WeekMap을 활용해서 메모리 누수를 방지할 것 같습니다.
+
+**🌟 45점**
+
+놓친 부분 <br/>
+꼭 알아야 하는 WeakMap의 구조적 제약
+1. key는 객체만 가능하다.
+2. 순회할 수 없다.
+3. size를 알 수 없다.
+4. keys(), values(), entries(), forEach()가 없다.
+
+>WeakMap의 key는 GC에 의해 언제 사라질지 모르기 때문이야.
+
+👍🏻 더 좋은 답변<br/>
+> WeakMap은 일반 Map과 달리 key를 약하게 참조합니다. 그래서 key 객체가 다른 곳에서 강하게 참조되지 않으면 WeakMap에 들어 있어도 GC 대상이 될 수 있습니다.
+
+> 대신 구조적 제약이 있습니다. WeakMap의 key는 객체만 가능하고, 순회할 수 없으며, size도 알 수 없습니다. keys, values, entries, forEach 같은 메서드도 제공하지 않습니다. key가 GC에 의해 언제 사라질지 알 수 없기 때문입니다.
+
+> 활용 사례로는 DOM 요소나 객체에 부가 데이터를 연결할 때 사용할 수 있습니다. 일반 Map을 쓰면 key 객체를 계속 붙잡아 메모리 누수가 생길 수 있지만, WeakMap을 쓰면 객체가 사라질 때 관련 데이터도 함께 정리될 수 있습니다.
+
+
+#### Q3. Mark-and-Sweep 알고리즘이 실행될 때 프로그램의 메인 스레드가 일시적으로 멈추는 현상을 무엇이라 부르며, 구글 V8 엔진은 이를 어떻게 최적화하나요?
+> 모르겠습니다.
+
+**🌟 0점**
+
+👍🏻 더 좋은 답변<br/>
+
+>GC가 실행되는 동안 프로그램의 메인 스레드가 일시적으로 멈추는 현상을 Stop-the-world 또는 GC pause라고 합니다.
+
+>V8은 이 시간을 줄이기 위해 Orinoco GC에서 incremental, concurrent, parallel 방식을 사용합니다. GC 작업을 한 번에 몰아서 처리하지 않고 잘게 나누거나, 백그라운드 스레드에서 marking을 수행하거나, 여러 스레드가 병렬로 처리하게 해서 메인 스레드가 멈추는 시간을 줄입니다.
+
+>또한 young generation과 old generation을 나누는 generational GC를 사용해, 대부분의 객체가 금방 사라진다는 특성을 활용합니다.

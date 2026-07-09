@@ -1,5 +1,11 @@
 ---
 title: Gallup Top 5 CliftonStrengths
+pagefind: false
+head:
+  - tag: meta
+    attrs:
+      name: robots
+      content: noindex,nofollow
 layout: ../../../layouts/BlogPost.astro
 nocomment: true
 ---
