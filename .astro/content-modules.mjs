@@ -26,6 +26,7 @@ export default new Map([
 ["src/content/docs/js/class.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Fjs%2Fclass.mdx&astroContentModuleFlag=true")],
 ["src/content/docs/js/closure.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Fjs%2Fclosure.mdx&astroContentModuleFlag=true")],
 ["src/content/docs/js/event_loop.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Fjs%2Fevent_loop.mdx&astroContentModuleFlag=true")],
+["src/content/docs/js/garbage_collector.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Fjs%2Fgarbage_collector.mdx&astroContentModuleFlag=true")],
 ["src/content/docs/js/hiddenclass-inline-caching.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Fjs%2Fhiddenclass-inline-caching.mdx&astroContentModuleFlag=true")],
 ["src/content/docs/js/hoisting.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Fjs%2Fhoisting.mdx&astroContentModuleFlag=true")],
 ["src/content/docs/js/iterable.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Fjs%2Fiterable.mdx&astroContentModuleFlag=true")],
