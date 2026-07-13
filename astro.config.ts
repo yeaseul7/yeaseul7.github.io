@@ -19,6 +19,9 @@ export default defineConfig({
     starlight({
       credits: false,
       plugins: [starlightThemeNext()],
+      components: {
+        Footer: "./src/components/CommentsFooter.astro",
+      },
       sidebar: [
         {
           label: "Home",
@@ -131,6 +134,37 @@ export default defineConfig({
             name: "keywords",
             content:
               "프론트엔드, Frontend, React, TypeScript, Next.js, 웹개발, 개발블로그, JavaScript, 개발자, 이예슬, 쎄옹블로그, 쎄옹 블로그, 쎄옹의 개발 블로그, 이예슬 블로그",
+          },
+        },
+        {
+          tag: "script",
+          attrs: {
+            async: true,
+            src: "https://www.googletagmanager.com/gtag/js?id=G-CZD8XP5VE0",
+          },
+        },
+        {
+          tag: "script",
+          content: `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-CZD8XP5VE0');
+          `,
+        },
+        {
+          tag: "meta",
+          attrs: {
+            name: "google-adsense-account",
+            content: "ca-pub-3760441216253528",
+          },
+        },
+        {
+          tag: "script",
+          attrs: {
+            async: true,
+            src: "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3760441216253528",
+            crossorigin: "anonymous",
           },
         },
       ],

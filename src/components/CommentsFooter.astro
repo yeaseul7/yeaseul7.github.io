@@ -1,0 +1,30 @@
+---
+import DefaultFooter from "@astrojs/starlight/components/Footer.astro";
+
+const { starlightRoute } = Astro.locals;
+const data = starlightRoute.entry.data as { title: string; nocomment?: boolean };
+---
+
+<DefaultFooter />
+{
+  data.nocomment ? null : (
+    <div id="comments" class="comments">
+      <script
+        is:inline
+        set:html={`
+          (function() {
+            var script = document.createElement('script');
+            script.src = 'https://utteranc.es/client.js';
+            script.setAttribute('repo', 'yeaseul7/yeaseul7.github.io');
+            script.setAttribute('issue-term', ${JSON.stringify(data.title)});
+            script.setAttribute('label', 'comments');
+            script.setAttribute('theme', 'preferred-color-scheme');
+            script.crossOrigin = 'anonymous';
+            script.async = true;
+            document.currentScript.parentElement.appendChild(script);
+          })();
+        `}
+      />
+    </div>
+  )
+}

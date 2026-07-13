@@ -6,7 +6,6 @@ head:
     attrs:
       name: robots
       content: noindex,nofollow
-layout: ../../../layouts/BlogPost.astro
 nocomment: true
 ---
 
