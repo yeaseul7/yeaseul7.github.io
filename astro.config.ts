@@ -19,6 +19,7 @@ export default defineConfig({
     starlight({
       credits: false,
       plugins: [starlightThemeNext()],
+      customCss: ["./src/styles/custom.css"],
       components: {
         Footer: "./src/components/CommentsFooter.astro",
       },
