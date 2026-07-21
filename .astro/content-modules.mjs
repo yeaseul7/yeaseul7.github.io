@@ -48,5 +48,6 @@ export default new Map([
 ["src/content/docs/retrospect/gdsc.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Fretrospect%2Fgdsc.mdx&astroContentModuleFlag=true")],
 ["src/content/docs/retrospect/retro2025.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Fretrospect%2Fretro2025.mdx&astroContentModuleFlag=true")],
 ["src/content/docs/retrospect/skhu-contest.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Fretrospect%2Fskhu-contest.mdx&astroContentModuleFlag=true")],
+["src/content/docs/tip/ax_aitransformation.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Ftip%2Fax_aitransformation.mdx&astroContentModuleFlag=true")],
 ["src/content/docs/tip/edit-github-profile.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Ftip%2Fedit-github-profile.mdx&astroContentModuleFlag=true")]]);
 		

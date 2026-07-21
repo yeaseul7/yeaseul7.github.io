@@ -1,5 +1,6 @@
 ---
 title: 멘토링
+updatedAt: 2025-12-10
 pagefind: false
 head:
   - tag: meta

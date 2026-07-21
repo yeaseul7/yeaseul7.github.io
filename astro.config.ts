@@ -18,10 +18,13 @@ export default defineConfig({
   integrations: [
     starlight({
       credits: false,
+      lastUpdated: false,
       plugins: [starlightThemeNext()],
       customCss: ["./src/styles/custom.css"],
       components: {
         Footer: "./src/components/CommentsFooter.astro",
+        LastUpdated: "./src/components/UpdatedAt.astro",
+        PageFrame: "./src/components/BlogPageFrame.astro",
       },
       sidebar: [
         {

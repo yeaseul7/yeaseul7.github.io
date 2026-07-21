@@ -1,5 +1,6 @@
 ---
 title: 인터뷰 스킬
+updatedAt: 2025-12-10
 pagefind: false
 head:
   - tag: meta

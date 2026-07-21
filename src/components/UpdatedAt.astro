@@ -1,0 +1,19 @@
+---
+const data = Astro.locals.starlightRoute.entry.data as { updatedAt?: Date };
+const updatedAt = data.updatedAt;
+---
+
+{
+  updatedAt && (
+    <p class="updated-at">
+      업데이트: <time datetime={updatedAt.toISOString()}>
+        {updatedAt.toLocaleDateString("ko-KR", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          timeZone: "UTC",
+        })}
+      </time>
+    </p>
+  )
+}

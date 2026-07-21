@@ -1,0 +1,114 @@
+<canvas class="dot-grid-background" data-dot-grid aria-hidden="true"></canvas>
+
+<script is:inline>
+  (() => {
+    const canvas = document.querySelector('[data-dot-grid]');
+    if (!(canvas instanceof HTMLCanvasElement) || canvas.dataset.ready) return;
+
+    canvas.dataset.ready = 'true';
+    const context = canvas.getContext('2d');
+    if (!context) return;
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const pointer = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    const target = { ...pointer };
+    let width = 0;
+    let height = 0;
+    let frame = 0;
+    let visible = true;
+
+    const resize = () => {
+      const ratio = Math.min(window.devicePixelRatio || 1, 2);
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = Math.round(width * ratio);
+      canvas.height = Math.round(height * ratio);
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      context.setTransform(ratio, 0, 0, ratio, 0, 0);
+      pointer.x = target.x = width / 2;
+      pointer.y = target.y = height / 2;
+    };
+
+    const themeColor = () => {
+      const dark = document.documentElement.dataset.theme === 'dark';
+      return dark ? [96, 165, 250] : [59, 130, 246];
+    };
+
+    const draw = (time = 0) => {
+      context.clearRect(0, 0, width, height);
+
+      if (!reduceMotion.matches) {
+        pointer.x += (target.x - pointer.x) * 0.055;
+        pointer.y += (target.y - pointer.y) * 0.055;
+      }
+
+      const spacing = width < 720 ? 34 : 40;
+      const radius = Math.min(width, height) * 0.3;
+      const [red, green, blue] = themeColor();
+      const columns = Math.ceil(width / spacing) + 4;
+      const rows = Math.ceil(height / spacing) + 4;
+
+      for (let row = -2; row < rows; row += 1) {
+        for (let column = -2; column < columns; column += 1) {
+          const baseX = column * spacing + (row % 2 ? spacing * 0.5 : 0);
+          const baseY = row * spacing;
+          const dx = baseX - pointer.x;
+          const dy = baseY - pointer.y;
+          const distance = Math.hypot(dx, dy) || 1;
+          const influence = Math.max(0, 1 - distance / radius);
+          const directionX = dx / distance;
+          const directionY = dy / distance;
+          const pressure = Math.pow(influence, 1.7) * radius * 0.22;
+          const x = baseX + directionX * pressure;
+          const y = baseY + directionY * pressure;
+          const pressureRing = Math.sin(influence * Math.PI);
+          const dotRadius = 0.95 + pressureRing * 1.05;
+          const alpha = 0.3 + pressureRing * 0.3;
+
+          context.beginPath();
+          context.arc(x, y, dotRadius, 0, Math.PI * 2);
+          context.fillStyle = `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+          context.fill();
+        }
+      }
+
+      if (visible && !reduceMotion.matches) frame = requestAnimationFrame(draw);
+    };
+
+    const restart = () => {
+      cancelAnimationFrame(frame);
+      draw(performance.now());
+    };
+
+    window.addEventListener('resize', () => {
+      resize();
+      if (reduceMotion.matches) restart();
+    }, { passive: true });
+
+    window.addEventListener('pointermove', (event) => {
+      target.x = event.clientX;
+      target.y = event.clientY;
+    }, { passive: true });
+
+    document.addEventListener('pointerleave', () => {
+      target.x = width / 2;
+      target.y = height / 2;
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      visible = !document.hidden;
+      if (visible) restart();
+      else cancelAnimationFrame(frame);
+    });
+
+    reduceMotion.addEventListener('change', restart);
+    new MutationObserver(restart).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    });
+
+    resize();
+    draw();
+  })();
+</script>

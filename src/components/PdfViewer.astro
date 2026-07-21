@@ -1,0 +1,14 @@
+---
+interface Props {
+  src: string;
+  title: string;
+}
+
+const { src, title } = Astro.props;
+---
+
+<iframe
+  class="pdf-only"
+  src={`${src}#view=FitH&toolbar=1`}
+  title={`${title} PDF 뷰어`}
+></iframe>

@@ -1,13 +1,16 @@
 ---
 import DefaultFooter from "@astrojs/starlight/components/Footer.astro";
+import SiteFooter from "./SiteFooter.astro";
 
 const { starlightRoute } = Astro.locals;
 const data = starlightRoute.entry.data as { title: string; nocomment?: boolean };
+const isHome = Astro.url.pathname === "/";
+const isPdfOnly = Astro.url.pathname === "/about/";
 ---
 
-<DefaultFooter />
+{isHome || isPdfOnly ? null : <DefaultFooter />}
 {
-  data.nocomment ? null : (
+  data.nocomment || isPdfOnly ? null : (
     <div id="comments" class="comments">
       <script
         is:inline
@@ -28,3 +31,4 @@ const data = starlightRoute.entry.data as { title: string; nocomment?: boolean }
     </div>
   )
 }
+{isPdfOnly ? null : <SiteFooter />}

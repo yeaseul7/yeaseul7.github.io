@@ -1,5 +1,6 @@
 ---
 title: Gallup Top 5 CliftonStrengths
+updatedAt: 2025-12-10
 pagefind: false
 head:
   - tag: meta
