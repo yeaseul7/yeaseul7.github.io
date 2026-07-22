@@ -1,6 +1,6 @@
 <canvas class="dot-grid-background" data-dot-grid aria-hidden="true"></canvas>
 
-<script is:inline>
+<script>
   (() => {
     const canvas = document.querySelector('[data-dot-grid]');
     if (!(canvas instanceof HTMLCanvasElement) || canvas.dataset.ready) return;
@@ -81,15 +81,25 @@
       draw(performance.now());
     };
 
+    // Render first so optional browser APIs cannot prevent initialization.
+    resize();
+    draw();
+
     window.addEventListener('resize', () => {
       resize();
       if (reduceMotion.matches) restart();
     }, { passive: true });
 
-    window.addEventListener('pointermove', (event) => {
+    const movePointer = (event) => {
       target.x = event.clientX;
       target.y = event.clientY;
-    }, { passive: true });
+    };
+
+    if ('PointerEvent' in window) {
+      window.addEventListener('pointermove', movePointer, { passive: true });
+    } else {
+      window.addEventListener('mousemove', movePointer, { passive: true });
+    }
 
     document.addEventListener('pointerleave', () => {
       target.x = width / 2;
@@ -102,13 +112,17 @@
       else cancelAnimationFrame(frame);
     });
 
-    reduceMotion.addEventListener('change', restart);
-    new MutationObserver(restart).observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['data-theme'],
-    });
+    if (typeof reduceMotion.addEventListener === 'function') {
+      reduceMotion.addEventListener('change', restart);
+    } else if (typeof reduceMotion.addListener === 'function') {
+      reduceMotion.addListener(restart);
+    }
 
-    resize();
-    draw();
+    if ('MutationObserver' in window) {
+      new MutationObserver(restart).observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['data-theme'],
+      });
+    }
   })();
 </script>
