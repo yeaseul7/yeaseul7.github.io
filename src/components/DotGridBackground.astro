@@ -32,7 +32,7 @@
 
     const themeColor = () => {
       const dark = document.documentElement.dataset.theme === 'dark';
-      return dark ? [96, 165, 250] : [59, 130, 246];
+      return dark ? [126, 134, 143] : [100, 116, 139];
     };
 
     const draw = (time = 0) => {
@@ -43,32 +43,29 @@
         pointer.y += (target.y - pointer.y) * 0.055;
       }
 
-      const spacing = width < 720 ? 34 : 40;
-      const radius = Math.min(width, height) * 0.3;
+      const spacing = 16;
+      const spotlightRadius = Math.min(150, Math.max(100, width * 0.1));
       const [red, green, blue] = themeColor();
       const columns = Math.ceil(width / spacing) + 4;
       const rows = Math.ceil(height / spacing) + 4;
 
       for (let row = -2; row < rows; row += 1) {
         for (let column = -2; column < columns; column += 1) {
-          const baseX = column * spacing + (row % 2 ? spacing * 0.5 : 0);
+          const baseX = column * spacing;
           const baseY = row * spacing;
           const dx = baseX - pointer.x;
           const dy = baseY - pointer.y;
-          const distance = Math.hypot(dx, dy) || 1;
-          const influence = Math.max(0, 1 - distance / radius);
-          const directionX = dx / distance;
-          const directionY = dy / distance;
-          const pressure = Math.pow(influence, 1.7) * radius * 0.22;
-          const x = baseX + directionX * pressure;
-          const y = baseY + directionY * pressure;
-          const pressureRing = Math.sin(influence * Math.PI);
-          const dotRadius = 0.95 + pressureRing * 1.05;
-          const alpha = 0.3 + pressureRing * 0.3;
+          const distance = Math.hypot(dx, dy);
+          const influence = Math.max(0, 1 - distance / spotlightRadius);
+          const brightness = influence * influence * (3 - 2 * influence);
+          const brightRed = red + (255 - red) * brightness * 0.92;
+          const brightGreen = green + (255 - green) * brightness * 0.92;
+          const brightBlue = blue + (255 - blue) * brightness * 0.92;
+          const alpha = 0.42 + brightness * 0.58;
 
           context.beginPath();
-          context.arc(x, y, dotRadius, 0, Math.PI * 2);
-          context.fillStyle = `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+          context.arc(baseX, baseY, 0.7, 0, Math.PI * 2);
+          context.fillStyle = `rgba(${brightRed}, ${brightGreen}, ${brightBlue}, ${alpha})`;
           context.fill();
         }
       }
