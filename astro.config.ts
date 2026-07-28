@@ -73,6 +73,11 @@ export default defineConfig({
           items: [{ autogenerate: { directory: "tip" } }],
         },
         {
+          label: "Project",
+          collapsed: true,
+          items: [{ autogenerate: { directory: "project" } }],
+        },
+        {
           label: "Retrospect",
           collapsed: true,
           items: [{ autogenerate: { directory: "retrospect" } }],

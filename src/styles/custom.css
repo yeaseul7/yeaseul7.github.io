@@ -44,7 +44,7 @@
     opacity: 0.92;
   }
 
-  body > :not(.dot-grid-background),
+  body > :not(.dot-grid-background):not(.sl-skip-link),
   .page {
     position: relative;
     z-index: 1;

@@ -46,6 +46,7 @@ export default new Map([
 ["src/content/docs/network/http-https.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Fnetwork%2Fhttp-https.mdx&astroContentModuleFlag=true")],
 ["src/content/docs/network/network.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Fnetwork%2Fnetwork.mdx&astroContentModuleFlag=true")],
 ["src/content/docs/network/protocol.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Fnetwork%2Fprotocol.mdx&astroContentModuleFlag=true")],
+["src/content/docs/project/about.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Fproject%2Fabout.mdx&astroContentModuleFlag=true")],
 ["src/content/docs/retrospect/gdsc.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Fretrospect%2Fgdsc.mdx&astroContentModuleFlag=true")],
 ["src/content/docs/retrospect/retro2025.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Fretrospect%2Fretro2025.mdx&astroContentModuleFlag=true")],
 ["src/content/docs/retrospect/skhu-contest.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Fretrospect%2Fskhu-contest.mdx&astroContentModuleFlag=true")],

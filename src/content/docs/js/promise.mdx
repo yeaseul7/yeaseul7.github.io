@@ -3,3 +3,256 @@ title: Promise
 updatedAt: 2026-07-23
 description: 비동기 작업의 최종 완료 또는 실패를 나타내는 객체입니다. 
 ---
+
+## Promise는 왜 등장했을까?
+
+Promise이전에는 보통 callback으로 비동기를 처리했다. 
+```javascript
+const user = getUser();
+console.log(user);
+// getUser가 api 요청이라면 완료되기전에 log가 찍힐수도 있다.
+// 그래서 예전에는 결과를 받을 함수를 인자로 넘겼다.
+
+console.log("1");
+
+getUser(function (user) {
+  console.log("3", user);
+});
+
+console.log("2");
+
+// 이렇게 코드를 작성하면 실행 순서는 1->2->3이다.
+```
+```javascript
+function getUser() {
+  setTimeout(() => {
+    const user = { id: 1, name: "Lee" };
+    return user;
+  }, 1000);
+}
+
+const user = getUser();
+console.log(user);
+```
+여기서 `return user;`는 `getUser()`의 반환값이 아니고 `setTimeout`콜백 함수의 반환값이다.
+
+- getUser() 실행
+- setTimeout을 등록
+- return으로 인해 완료 여부와 상관없이 종료
+- user를 조회하기도 전에 끝나서 undefined 반환
+- 1초 뒤에 타이머 콜백 실행
+
+```javascript
+function getUser(callback) {
+  setTimeout(() => {
+    const user = { id: 1, name: "Lee" };
+
+    callback(user);
+  }, 1000);
+}
+
+getUser(function (user) {
+  console.log(user);
+});
+```
+그래서 이렇게 코드를 작성하는데, getUser에게 user를 조회하고 실행할 함수를 전달하면서 조회끝나고 어떤 행동을 할지 알려주는 것이다. 
+
+하지만 이 방식이면 ~행동이 일어나고 ~함수를 실행시켜가 반복된다. <br />
+그러면 함수가 엄청나게 중복될 수 있다.<br/>
+아래가 그 예시이다.
+```javascript
+getUser(function (error, user) {
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  getOrders(user.id, function (error, orders) {
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    getOrderDetail(orders[0].id, function (error, detail) {
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      console.log(detail);
+    });
+  });
+});
+```
+위의 방식의 단점은 아래와 같다. 
+- 작업 순서를 파악하기 어렵다.
+- 에러 처리가 단계마다 반복된다.
+- 다음 작업이 이전 콜백 내부에 종속된다.
+- 코드를 수정하거나 단계를 추가하기 어렵다.
+
+그래서 Promise는 결과를 객체로 전달하면서 중첩구조가 아닌 연결 구조를 가져갈 수 있게 된 것이다. 
+
+<pre>
+콜백 방식
+getUser
+└─ getOrders
+   └─ getOrderDetail
+
+Promise 방식
+getUser
+→ getOrders
+→ getOrderDetail
+</pre>
+
+
+## Promise란 무엇인가?
+
+> 비동기 작업의 최종 결과나 실패 상태를 나타내는 객체
+
+## Promise의 세 가지 상태
+
+`pending` - 대기 <br/>
+`fulfilled` - 성공 <br/>
+`rejected` - 실패 <br/>
+
+Promise는 다음의 상태를 확정한 뒤 실행가능하도록 예약한다. <br/>
+then은 Promise가 fulfilled되면 마이크로태스크 큐에 들어가서 실행을 기다린다.<br/>
+[마이크로태스크 큐에 관련해서는 전의 포스팅인 event loop에서 확인할 수 있다.](https://yeaseul7.github.io/js/event_loop/)
+
+## Promise 생성과 executor 함수
+
+다음의 코드 실행 순서를 맞춰보자
+```javascript
+const promise = new Promise((resolve) => {
+  console.log("A");
+
+  resolve("완료");
+
+  console.log("B");
+});
+
+promise.then((value) => {
+  console.log(value);
+});
+
+console.log("C"); // 동기 실행
+```
+정답은?<br/>
+
+A -> B -> C -> 완료
+
+1. Promise객체 생성
+2. executor 실행 -> A 출력
+3. resolve에 의해 fulfilled로 변경
+4. 나머지 실행 -> B출력
+5. then 콜백 microtask queue에 등록
+6. 동기 실행 -> C출력
+7. 우선순위에 따른 queue 비워내기 -> 완료 출력
+
+## then은 언제 실행되는가?
+
+then()은 즉시 호출되어 콜백을 등록하지만 콜백은 Promise가 fulfilled된 뒤 마이크로태스크 큐에 들어가고 현재 동기 코드가 끝난 후 실행된다.
+
+다음의 코드의 실행 순서를 예측해보자.
+```javascript
+const promise = new Promise((resolve) => {
+  console.log("A");
+
+  setTimeout(() => {
+    console.log("B");
+    resolve("C");
+  }, 1000);
+});
+
+promise.then((value) => {
+  console.log(value);
+});
+
+console.log("D");
+console.log("E");
+```
+정답은? <br/>
+
+1. new Promise()로 Promise 객체 생성
+2. executor 함수 즉시 실행
+3. A 출력
+4. setTimeout 타이머 등록
+5. then() 호출, 성공 콜백 등록
+6. D 출력
+7. E 출력
+8. 약 1초 후 타이머 콜백이 Task Queue에 등록
+9. 타이머 콜백 실행, B 출력
+10. resolve() 호출, Promise가 fulfilled 상태로 변경
+11. then 콜백이 Microtask Queue에 등록
+12. 현재 타이머 콜백이 끝남
+13. Microtask Queue의 then 콜백 실행, C 출력
+
+## Promise 체이닝과 return
+
+### then()은 무엇을 반환하며, 콜백의 반환값은 다음 then에 어떻게 전달될까?
+
+then은 Promise 객체를 반환한다. <br/>
+콜백에서 return 하면 그게 다음 then으로 전달된다. <br/>
+만약 반환하지 않는다면 undefined가 반환된다.<br/>
+
+```javascript
+Promise.resolve()
+  .then(() => {
+    return fetch("/api/user");
+  })
+  .then((response) => {
+    // fetch가 완료된 후 실행
+  });
+```
+위의 예시에서는 promise를 반환한다.
+다음 then은 해당 promise가 fulfilled로 변환할때 실행된다. 
+
+일반 값 반환
+→ 새로운 Promise가 그 값으로 fulfilled
+→ 다음 then 콜백이 Microtask Queue에 등록
+
+Promise 반환
+→ 반환한 Promise의 상태가 결정될 때까지 대기
+→ fulfilled되면 다음 then 실행
+
+
+## catch를 통한 에러 처리
+
+### then 내부에서 에러가 발생하면 이후 체인은 어떻게 동작할까?
+```javascript
+Promise.resolve("A")
+  .then((value) => {
+    console.log(value);
+    throw new Error("실패");
+  })
+  .then(() => {
+    console.log("B");
+  })
+  .catch((error) => {
+    console.log(error.message);
+  });
+```
+실행하던 then 안에서 throw하면 catch로 반환되고 다음then은 실행되지 않는다. 
+
+그렇다면 아래의 경우에서는 어떻게 실행될까
+```javascript
+Promise.reject(new Error("실패"))
+  .catch(() => {
+    return "복구";
+  })
+  .then((value) => {
+    console.log(value);
+  });
+```
+
+catch도 새로운 Promise를 반환한다.
+catch 내부에서 에러를 다시 던지지 않고 "복구"를 반환하면,
+catch가 반환한 Promise는 "복구"를 결과로 가진 fulfilled 상태가 된다.
+따라서 다음 then이 실행된다.
+
+## Promise와 Microtask Queue
+
+### 이미 fulfilled된 Promise의 then도 왜 즉시 실행되지 않을까?
+
+promise가 fulfilled되면 바로 실행되는게 아닌, 우선수위가 가장 높은 Microtask Queue에 등록된다. 
+그리고 먼저 작업되던게 끝나면 순서대로 큐가 실행되기 때문에 즉시 실행되지는 않는다. 
