@@ -66,6 +66,12 @@
     overflow-x: hidden;
   }
 
+  @media (max-width: 49.999rem) {
+    .sidebar-pane {
+      background: var(--sl-color-bg-nav) !important;
+    }
+  }
+
   .sidebar-content {
     min-width: 0;
     overflow-x: hidden;
