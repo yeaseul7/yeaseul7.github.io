@@ -29,7 +29,7 @@ export default defineConfig({
       sidebar: [
         {
           label: "Home",
-          items: ["index", "about"],
+          items: ["index", "roadmap", "about"],
         },
 
         {

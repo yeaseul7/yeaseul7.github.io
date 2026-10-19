@@ -16,11 +16,18 @@ export const latestPosts = (await getCollection("docs"))
   .filter(({ id, data }) =>
     id !== "index" &&
     id !== "about" &&
+    id !== "roadmap" &&
     !id.startsWith("secret/") &&
     data.updatedAt
   )
   .sort((a, b) => b.data.updatedAt.getTime() - a.data.updatedAt.getTime())
   .slice(0, 3);
+
+<aside class="roadmap-entry" aria-label="학습 로드맵 안내">
+  <strong>어디서부터 공부할지 고민이라면</strong>
+  <p>JavaScript부터 React·Next.js, 성능과 배포까지 11단계로 이어서 읽어보세요.</p>
+  <a href="/roadmap/">학습 로드맵 시작하기 <span aria-hidden="true">→</span></a>
+</aside>
 
 <section class="recent-posts home-page" id="recent-posts">
   <div class="home-section-heading">

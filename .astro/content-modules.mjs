@@ -18,6 +18,7 @@ export default new Map([
 ["src/content/docs/fe/web-server.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Ffe%2Fweb-server.mdx&astroContentModuleFlag=true")],
 ["src/content/docs/fe/web-standards.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Ffe%2Fweb-standards.mdx&astroContentModuleFlag=true")],
 ["src/content/docs/fe/webpack.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Ffe%2Fwebpack.mdx&astroContentModuleFlag=true")],
+["src/content/docs/game/game_design.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Fgame%2Fgame_design.mdx&astroContentModuleFlag=true")],
 ["src/content/docs/index.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Findex.mdx&astroContentModuleFlag=true")],
 ["src/content/docs/js/arguments_property.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Fjs%2Farguments_property.mdx&astroContentModuleFlag=true")],
 ["src/content/docs/js/array_like_object.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Fjs%2Farray_like_object.mdx&astroContentModuleFlag=true")],
@@ -52,5 +53,6 @@ export default new Map([
 ["src/content/docs/retrospect/gdsc.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Fretrospect%2Fgdsc.mdx&astroContentModuleFlag=true")],
 ["src/content/docs/retrospect/retro2025.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Fretrospect%2Fretro2025.mdx&astroContentModuleFlag=true")],
 ["src/content/docs/retrospect/skhu-contest.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Fretrospect%2Fskhu-contest.mdx&astroContentModuleFlag=true")],
+["src/content/docs/roadmap.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Froadmap.mdx&astroContentModuleFlag=true")],
 ["src/content/docs/tip/edit-github-profile.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Ftip%2Fedit-github-profile.mdx&astroContentModuleFlag=true")]]);
 		
