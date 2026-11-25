@@ -10,7 +10,7 @@ Redis는 메모리 중심의 데이터 저장소다. Cache-Aside에서는 Redis�
 
 ## Redis는 DB를 대체하는가?
 
-Redis는 Key-Value 기반으로 다양한 자료구조를 제공한다. RAM 중심의 접근은 디스크 I/O를 줄이는 데 유리하지만 네트워크와 명령 처리 비용까지 없애지는 않는다. 관계형 DB와 함께 사용하거나 요구사항에 따라 독립 저장소로 사용할 수도 있다. 디스크 영속화에는 RDB 스냅샷과 AOF 로그 등의 선택지가 있으며 장애 시 보존 범위는 설정에 따라 달라진다. [Redis 영속성 문서](https://redis.io/docs/latest/operate/oss_and_stack/management/persistence/) 참고.
+Redis는 Key-Value 기반으로 다양한 자료구조를 제공한다. RAM 중심의 접근은 디스크 I/O를 줄이는 데 유리하지만 네트워크와 명령 처리 비용까지 없애지는 않는다. 관계형 DB와 함께 사용하거나 요구사항에 따라 독립 저장소로 사용할 수도 있다.
 
 상품 조회를 예로 들어보자. 기존에는 매 조회마다 DB를 호출하지만, Cache-Aside에서는 애플리케이션이 캐시를 먼저 확인한다.
 
@@ -40,7 +40,7 @@ async function getProduct(id) {
 
 학습 중 제안한 방법은 수정 시 키를 product:1:v1에서 product:1:v2로 변경하는 것이었다. 유효한 접근이지만 현재 버전을 알아낼 방법과 과거 키를 정리할 정책이 필요하다. 대안은 DB 수정 성공 후 기존 키를 삭제하고 다음 조회에서 다시 채우는 것이다.
 
-삭제에 실패하면 DB와 캐시가 서로 다른 값을 보유한다. TTL은 캐시의 수명을 제한하는 안전장치지만 최신성을 보장하지는 않는다. 동시 조회와 수정이 겹치면 삭제 직후 오래된 값이 다시 저장되는 경쟁 조건도 고려해야 한다.
+삭제에 실패하면 DB와 캐시가 서로 다른 값을 보유한다. TTL은 캐시의 수명을 제한하는 안전장치지만 최신성을 보장하지는 않는다.
 
 | 기준 | 짧은 TTL | 긴 TTL |
 | --- | --- | --- |
@@ -48,7 +48,7 @@ async function getProduct(id) {
 | 원본 DB 조회 부담 | 증가 | 감소 |
 | 오래된 데이터 노출 가능성 | 감소 | 증가 |
 
-동일한 요청 패턴과 별도 무효화가 없는 상황을 가정한 비교다. 짧은 TTL의 핵심 비용은 캐시 조회 자체가 아니라 Miss 이후 DB 조회와 재저장이다. 여러 요청이 동시에 만료된 키를 조회하면 중복 DB 조회도 발생할 수 있다. 보충 설계로 요청 병합, 만료 시점 분산, 무효화 실패 재시도를 검토할 수 있다.
+동일한 요청 패턴과 별도 무효화가 없는 상황을 가정한 비교다. 짧은 TTL의 핵심 비용은 캐시 조회 자체가 아니라 Miss 이후 DB 조회와 재저장이다.
 
 ## 직렬화와 압축은 무엇이 다른가?
 
@@ -94,7 +94,7 @@ console.log(Object.hasOwn(restored, "discount"));
 console.log(typeof restored.getPrice);
 ~~~
 
-Node.js v22.16.0에서 직접 실행한 결과:
+위 예제의 예상 출력:
 
 ~~~text
 {"id":1,"price":10000,"createdAt":"2026-11-25T00:00:00.000Z"}
@@ -103,7 +103,7 @@ false
 undefined
 ~~~
 
-Date는 유효한 날짜인 경우 ISO 문자열로 변환된다. 객체 프로퍼티의 undefined와 함수 값은 생략된다. 배열 요소에서는 undefined나 함수가 null로 표현될 수 있다. 이는 V8만의 특징이 아니라 ECMAScript에서 정한 JSON 동작이다. [JSON.stringify 문서](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify) 참고.
+Date는 유효한 날짜인 경우 ISO 문자열로 변환된다. 객체 프로퍼티의 undefined와 함수 값은 생략된다. 이는 V8만의 특징이 아니라 ECMAScript에서 정한 JSON 동작이다. [JSON.stringify 문서](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify) 참고.
 
 ISO 8601이 표준이므로 자동으로 Date 객체가 복원될 것이라고 생각했지만, 날짜 표기 형식과 런타임 타입은 다르다. 같은 ISO 문자열을 일반 설명 값으로 저장할 수도 있기 때문에 파서가 원래 의도를 추론할 수 없다.
 
@@ -121,18 +121,16 @@ const encoded = JSON.stringify({
   }
 });
 
-const decoded = JSON.parse(encoded, (key, value) =>
-  key === "createdAt" && value.type === "Date"
-    ? new Date(value.value)
-    : value
-);
-
-console.log(decoded.createdAt instanceof Date); // true
+const decoded = JSON.parse(encoded);
+if (decoded.createdAt.type === "Date") {
+  decoded.createdAt = new Date(decoded.createdAt.value);
+}
+// decoded.createdAt instanceof Date → true
 ~~~
 
-동일 Node.js 환경에서 타입 복원 결과를 확인했다. 위 코드는 신뢰하는 고정 데이터 구조에 대한 예제다. 실제로는 입력 검증과 스키마 관리가 필요하다. [JSON.parse의 reviver](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse)를 사용하면 파싱 이후 값을 변환할 수 있다.
+미실행 개념 예제다. 학습 대화에서 제안한 타입 태그를 확인한 뒤 애플리케이션이 Date를 명시적으로 만드는 흐름이다. Redis가 태그를 해석하거나 자동으로 타입을 복원하는 것은 아니다.
 
-모든 필드에 타입 태그를 넣으면 전송 및 저장 데이터가 늘고 복원 연산이 추가된다. 스키마로 날짜 필드를 이미 알고 있다면 별도 태그 없이 복원해도 된다. JSON.stringify와 JSON.parse도 동기 연산이므로 대용량 데이터는 Node.js 메인 JavaScript 실행을 지연시킬 수 있다. Redis 자체 조회 시간과 애플리케이션 전체 지연을 구분해야 한다.
+JSON.stringify와 JSON.parse도 동기 연산이므로 대용량 데이터는 Node.js 메인 JavaScript 실행을 지연시킬 수 있다. Redis 자체 조회 시간과 애플리케이션 전체 지연을 구분해야 한다.
 
 ## Dataverse 조회에 적용할 수 있을까?
 
@@ -162,4 +160,4 @@ console.log(decoded.createdAt instanceof Date); // true
 3. 아니다. 스키마 또는 타입 메타데이터를 사용해 명시적으로 복원해야 한다.
 4. 아니다. 전송 비용 감소와 CPU 비용 증가를 함께 측정해야 한다.
 
-공식 자료 확인일: 2026-11-25. JSON 예제만 Node.js에서 실행했으며 Redis 및 Dataverse의 실제 성능은 측정하지 않았다.
+학습 대화를 기준으로 2026-11-25에 범위를 정리했다. 코드의 출력은 동작 설명을 위한 예상 결과이며, 이 글은 Redis·Dataverse 성능 측정이나 실제 서비스 적용 결과를 담지 않는다.

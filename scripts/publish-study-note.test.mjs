@@ -17,6 +17,13 @@ test('메타데이터를 안전하게 인코딩하고 정해진 문서 경로를
   assert.match(note.content, /updatedAt: \d{4}-\d{2}-\d{2}/);
 });
 
+test('AI와 서버·CS 글을 서로 다른 디렉터리에 게시한다', async () => {
+  for (const category of ['ai', 'server-side', 'cs']) {
+    const note = await prepareNote({ ...input, category });
+    assert.equal(note.path, `src/content/docs/${category}/event-loop.md`);
+  }
+});
+
 test('경로 이탈, 허용하지 않은 분류, 크기 초과를 거절한다', async () => {
   for (const patch of [{ slug: '../index' }, { category: '../secret' }, { slug: 'UPPER' }, { body: 'x'.repeat(35001) }]) {
     await assert.rejects(prepareNote({ ...input, ...patch }));

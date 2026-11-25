@@ -33,8 +33,7 @@ export const engineering = [
     label: "Computer Science",
     collapsed: true,
     items: [
-      "cs/recursive",
-      "cs/tailcalloptimization",
+      { autogenerate: { directory: "cs" } },
       { autogenerate: { directory: "algorithm" } },
     ],
   },
@@ -51,7 +50,7 @@ export const engineering = [
   {
     label: "Backend & Database",
     collapsed: true,
-    items: ["fe/web-server"],
+    items: ["fe/web-server", { autogenerate: { directory: "server-side" } }],
   },
   {
     label: "Infrastructure",
@@ -65,6 +64,6 @@ export const engineering = [
   {
     label: "AI Engineering",
     collapsed: true,
-    items: [{ autogenerate: { directory: "server-side" } }],
+    items: [{ autogenerate: { directory: "ai" } }],
   },
 ] satisfies NonNullable<StarlightUserConfig["sidebar"]>;

@@ -5,7 +5,7 @@ import { createHash } from 'node:crypto';
 import { createMarkdownProcessor } from '@astrojs/markdown-remark';
 import { publishExam } from './publish-exam.mjs';
 
-export const categories = ['js', 'algorithm', 'fe', 'browser', 'cs', 'network', 'server-side', 'tip', 'project'];
+export const categories = ['js', 'algorithm', 'fe', 'browser', 'cs', 'network', 'server-side', 'ai', 'tip', 'project'];
 
 export async function prepareNote(input) {
   const { category, slug, title, description, body } = input;
