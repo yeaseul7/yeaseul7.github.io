@@ -1,10 +1,15 @@
 ---
+import CopyArticle from "./CopyArticle.astro";
+
 const data = Astro.locals.starlightRoute.entry.data as { updatedAt?: Date };
 const updatedAt = data.updatedAt;
+const isArticle = !["/", "/about/", "/roadmap/", "/404.html"].includes(Astro.url.pathname)
+  && !Astro.url.pathname.startsWith("/exams/");
 ---
 
-{
-  updatedAt && (
+<div class="article-footer-meta">
+  {isArticle && <CopyArticle />}
+  {updatedAt && (
     <p class="updated-at">
       업데이트: <time datetime={updatedAt.toISOString()}>
         {updatedAt.toLocaleDateString("ko-KR", {
@@ -15,5 +20,18 @@ const updatedAt = data.updatedAt;
         })}
       </time>
     </p>
-  )
-}
+  )}
+</div>
+
+<style>
+  .article-footer-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-inline-start: auto;
+  }
+
+  .updated-at { margin: 0; }
+</style>

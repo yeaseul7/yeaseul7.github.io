@@ -1,0 +1,82 @@
+<div class="article-actions" data-copy-article hidden>
+  <button type="button">전체 내용 복사</button>
+  <span role="status" aria-live="polite"></span>
+</div>
+
+<script>
+  for (const actions of document.querySelectorAll<HTMLElement>("[data-copy-article]")) {
+    const button = actions.querySelector<HTMLButtonElement>("button")!;
+    const status = actions.querySelector<HTMLElement>("[role=status]")!;
+    actions.hidden = false;
+
+    button.addEventListener("click", async () => {
+      const content = document.querySelector<HTMLElement>("main .sl-markdown-content");
+      const title = document.querySelector<HTMLElement>("main h1");
+      if (!content || !title) return;
+
+      button.disabled = true;
+      status.textContent = "";
+      const copy = content.cloneNode(true) as HTMLElement;
+      copy.querySelectorAll("button, script, style, iframe, object, embed, video, audio, .sl-anchor-link, .katex-mathml")
+        .forEach((element) => element.remove());
+      const container = document.createElement("div");
+      container.inert = true;
+      container.setAttribute("aria-hidden", "true");
+      container.style.cssText = `position:fixed;left:-10000px;top:0;width:${content.clientWidth}px`;
+      container.append(copy);
+
+      try {
+        // 렌더링된 텍스트의 문단·코드 줄바꿈을 유지한다.
+        document.body.append(container);
+        const text = `${title.innerText.trim()}\n\n${copy.innerText.trim()}`;
+        container.remove();
+        await navigator.clipboard.writeText(text);
+        status.textContent = "복사 완료";
+      } catch {
+        status.textContent = "복사하지 못했습니다. 본문을 직접 선택해 복사해 주세요.";
+      } finally {
+        container.remove();
+        button.disabled = false;
+      }
+    });
+  }
+</script>
+
+<style>
+  .article-actions {
+    display: flex;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--sl-color-gray-2);
+  }
+
+  .article-actions[hidden] { display: none; }
+
+  button {
+    padding: 0.4rem 0.65rem;
+    border: 1px solid var(--blog-border);
+    border-radius: 4px;
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+  }
+
+  button:hover {
+    color: var(--sl-color-text);
+    border-color: currentColor;
+  }
+
+  button:focus-visible {
+    outline: 2px solid var(--sl-color-accent);
+    outline-offset: 3px;
+  }
+
+  button:disabled {
+    cursor: wait;
+  }
+
+  [role="status"] {
+    margin-inline-start: 0.75rem;
+  }
+</style>
