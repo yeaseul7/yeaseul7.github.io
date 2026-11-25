@@ -19,6 +19,7 @@ export default defineConfig({
   integrations: [
     starlight({
       credits: false,
+      pagination: false,
       locales: { root: { label: "한국어", lang: "ko" } },
       lastUpdated: false,
       plugins: [starlightThemeNext()],

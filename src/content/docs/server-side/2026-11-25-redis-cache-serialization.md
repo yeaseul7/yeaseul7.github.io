@@ -136,8 +136,8 @@ JSON.stringify와 JSON.parse도 동기 연산이므로 대용량 데이터는 No
 
 실무 적용을 위한 가설이며 실제 환경의 측정 결과는 아니다. 관리형 Dataverse 내부 DB를 직접 조절하기보다 API 호출과 애플리케이션 캐시를 최적화하는 방향이 적합하다.
 
-- OData의 $select와 $filter로 필요한 필드와 레코드만 가져온다. $expand는 호출 수를 줄일 수 있지만 관계 데이터가 커지면 전송량이 늘 수 있다.
-- ETag 기반 조건부 단일 레코드 조회는 변경이 없을 때 304 응답을 활용할 수 있다. 변경 확인 요청은 여전히 발생하고 $expand 등이 포함되면 제한된다.
+- OData의 `$select`와 `$filter`로 필요한 필드와 레코드만 가져온다. `$expand`는 호출 수를 줄일 수 있지만 관계 데이터가 커지면 전송량이 늘 수 있다.
+- ETag 기반 조건부 단일 레코드 조회는 변경이 없을 때 304 응답을 활용할 수 있다. 변경 확인 요청은 여전히 발생하고 `$expand` 등이 포함되면 제한된다.
 - 프론트엔드 캐시 또는 서버의 Redis는 반복 조회를 줄일 수 있다. 단, 사용자 권한 및 테넌트 경계를 보존하고 수정 시 무효화해야 한다.
 
 참고: [Dataverse OData 조회](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/webapi/query/overview), [조건부 작업](https://learn.microsoft.com/en-us/power-apps/developer/data-platform/webapi/perform-conditional-operations-using-web-api).
@@ -157,7 +157,7 @@ JSON.stringify와 JSON.parse도 동기 연산이므로 대용량 데이터는 No
 
 1. 아니다. 같은 키를 기준으로 DB와 Redis에 서로 다른 값이 남는 문제다.
 2. Miss에 따른 원본 조회와 재저장 비용이 증가할 수 있다.
-3. 아니다. 스키마 또는 타입 메타데이터를 사용해 명시적으로 복원해야 한다.
+3. 아니다. 학습한 타입 메타데이터를 확인한 뒤 Date를 명시적으로 생성해야 한다.
 4. 아니다. 전송 비용 감소와 CPU 비용 증가를 함께 측정해야 한다.
 
 학습 대화를 기준으로 2026-11-25에 범위를 정리했다. 코드의 출력은 동작 설명을 위한 예상 결과이며, 이 글은 Redis·Dataverse 성능 측정이나 실제 서비스 적용 결과를 담지 않는다.
