@@ -1,0 +1,159 @@
+---
+import { createHash } from 'node:crypto';
+import { validateExam } from '../utils/exam.mjs';
+interface Props { exam: unknown; slug: string; }
+const { slug } = Astro.props;
+const exam = validateExam(Astro.props.exam);
+const revision = createHash('sha256').update(JSON.stringify(exam)).digest('hex').slice(0, 16);
+---
+
+<section class="exam-root" data-exam={JSON.stringify(exam)} data-storage-key={`study-exam:${slug}:${revision}`}>
+  <div class="exam-intro">
+    <p>{exam.questions.length}문항 · 각 문항에서 답 하나를 선택하세요.</p>
+    {exam.source_title && <p class="muted">출제 범위: {exam.source_title}</p>}
+    <div class="exam-links">
+      <a href={`/exams/${slug}/questions.pdf`} download>문제지 PDF</a>
+      <a href={`/exams/${slug}/answers.pdf`} download>정답·해설 PDF</a>
+      <a href="/exams/">시험 목록</a>
+    </div>
+    <p class="muted">답안과 메모는 현재 브라우저에 저장됩니다.</p>
+  </div>
+  <div class="exam-progress">
+    <label for="exam-progress">풀이 진행 <span data-progress-text>0 / {exam.questions.length}</span></label>
+    <progress id="exam-progress" value="0" max={exam.questions.length}></progress>
+  </div>
+  <form>
+    {exam.questions.map((q, index) => (
+      <fieldset class="question" data-question={index}>
+        <legend><span class="question-number">{String(index + 1).padStart(2, '0')}</span> {q.stem}</legend>
+        <div class="choices">
+          {q.choices.map((choice, option) => (
+            <label class="choice">
+              <input type="radio" name={`question-${index}`} value={option} data-index={index} />
+              <span>{'①②③④'[option]} {choice}</span>
+            </label>
+          ))}
+        </div>
+        <label class="memo-label" for={`memo-${index}`}>풀이 메모</label>
+        <textarea id={`memo-${index}`} data-note={index} rows="2" maxlength="5000" placeholder="헷갈린 이유나 판단 근거를 남겨 보세요."></textarea>
+        <div class="explanation" data-explanation={index} hidden>
+          <p class="answer-label"><strong data-question-result></strong> · 정답 {'①②③④'[q.answer]}</p>
+          <p><strong>정답 이유</strong> {q.choice_explanations[q.answer]}</p>
+          <ul>{q.choice_explanations.map((reason, option) => option !== q.answer && <li>{'①②③④'[option]} {reason}</li>)}</ul>
+          <p class="muted">원문 근거: {q.source}</p>
+          <p class="review-topic">다시 볼 개념: {q.topic}</p>
+        </div>
+      </fieldset>
+    ))}
+    <div class="exam-actions">
+      <button type="submit" class="grade-button">채점하기</button>
+      <button type="button" data-reset>답안 초기화</button>
+    </div>
+  </form>
+  <p data-status role="status" aria-live="polite"></p>
+  <section class="exam-result" data-result hidden aria-label="채점 결과">
+    <h2>풀이 결과</h2>
+    <p data-score></p>
+    <p data-review></p>
+  </section>
+  <noscript>문제를 선택하고 채점하려면 JavaScript를 켜 주세요. PDF는 내려받아 풀 수 있습니다.</noscript>
+</section>
+
+<script>
+  import { gradeExam, restoreAttempt } from '../utils/exam.mjs';
+  const root = document.querySelector<HTMLElement>('.exam-root');
+  if (root) {
+    const exam = JSON.parse(root.dataset.exam!);
+    const key = root.dataset.storageKey!;
+    const form = root.querySelector<HTMLFormElement>('form')!;
+    const status = root.querySelector<HTMLElement>('[data-status]')!;
+    const result = root.querySelector<HTMLElement>('[data-result]')!;
+    let raw = null;
+    try { raw = localStorage.getItem(key); } catch { /* 저장이 막혀도 시험은 풀 수 있다. */ }
+    const state = restoreAttempt(exam, raw);
+    const updateProgress = () => {
+      const answered = state.answers.filter((v: number | null) => v !== null).length;
+      root.querySelector<HTMLProgressElement>('progress')!.value = answered;
+      root.querySelector<HTMLElement>('[data-progress-text]')!.textContent = `${answered} / ${exam.questions.length}`;
+    };
+    const save = () => {
+      try { localStorage.setItem(key, JSON.stringify(state)); }
+      catch { status.textContent = '이 브라우저에서는 답안과 메모를 저장할 수 없습니다. 현재 화면에서는 계속 풀 수 있습니다.'; }
+    };
+    const clearResult = () => {
+      state.graded = false;
+      result.hidden = true;
+      root.querySelectorAll<HTMLElement>('[data-explanation]').forEach((el) => { el.hidden = true; });
+      root.querySelectorAll<HTMLElement>('[data-question]').forEach((el) => { delete el.dataset.outcome; });
+    };
+    const grade = () => {
+      const scored = gradeExam(exam, state.answers);
+      if (!scored.answered) { status.textContent = '답을 하나 이상 선택한 뒤 채점해 주세요.'; return; }
+      state.graded = true;
+      scored.results.forEach((correct: boolean | null, i: number) => {
+        const card = root.querySelector<HTMLElement>(`[data-question="${i}"]`)!;
+        card.dataset.outcome = correct === null ? 'unanswered' : correct ? 'correct' : 'incorrect';
+        card.querySelector<HTMLElement>('[data-question-result]')!.textContent = correct === null ? '미응답' : correct ? '맞았어요' : '다시 확인해 보세요';
+        card.querySelector<HTMLElement>('[data-explanation]')!.hidden = false;
+      });
+      result.hidden = false;
+      root.querySelector<HTMLElement>('[data-score]')!.textContent = `${scored.total}문항 중 ${scored.correct}문항 정답 · ${Math.round(scored.correct / scored.total * 100)}점 · 미응답 ${scored.total - scored.answered}문항`;
+      const topics = [...new Set(exam.questions.filter((_: unknown, i: number) => scored.results[i] !== true).map((q: { topic: string }) => q.topic))];
+      root.querySelector<HTMLElement>('[data-review]')!.textContent = topics.length ? `복습할 개념: ${topics.join(', ')}` : '모든 문제를 맞혔습니다. 각 선택지가 맞거나 틀린 이유도 설명해 보세요.';
+      status.textContent = '채점했습니다. 문항 아래에서 정답과 해설을 확인하세요.';
+      save();
+    };
+    state.answers.forEach((value: number | null, i: number) => {
+      if (value !== null) root.querySelector<HTMLInputElement>(`input[name="question-${i}"][value="${value}"]`)!.checked = true;
+    });
+    root.querySelectorAll<HTMLTextAreaElement>('[data-note]').forEach((el, i) => { el.value = state.notes[i]; });
+    updateProgress();
+    if (state.graded) grade();
+    form.addEventListener('change', (event) => {
+      const input = event.target;
+      if (!(input instanceof HTMLInputElement) || input.type !== 'radio') return;
+      state.answers[Number(input.dataset.index)] = Number(input.value);
+      clearResult(); updateProgress(); save();
+    });
+    form.addEventListener('input', (event) => {
+      const input = event.target;
+      if (input instanceof HTMLTextAreaElement) { state.notes[Number(input.dataset.note)] = input.value; save(); }
+    });
+    form.addEventListener('submit', (event) => { event.preventDefault(); grade(); });
+    root.querySelector('[data-reset]')!.addEventListener('click', () => {
+      state.answers.fill(null);
+      root.querySelectorAll<HTMLInputElement>('input[type="radio"]').forEach((el) => { el.checked = false; });
+      clearResult(); updateProgress(); save();
+      status.textContent = '답안을 초기화했습니다. 풀이 메모는 남겨 두었습니다.';
+    });
+  }
+</script>
+
+<style>
+  .exam-root { font-size: 1rem; line-height: 1.7; }
+  .exam-root [hidden] { display: none !important; }
+  .muted { color: var(--sl-color-gray-2); font-size: .9rem; }
+  .exam-links { display: flex; flex-wrap: wrap; gap: .6rem 1.25rem; }
+  .exam-progress { margin: 2rem 0; }
+  .exam-progress label { display: flex; justify-content: space-between; }
+  progress { display: block; width: 100%; height: .65rem; accent-color: var(--sl-color-accent); margin-top: .6rem; }
+  .question { min-width: 0; margin: 0 0 2rem; padding: 1.25rem; border: 1px solid var(--blog-border, var(--sl-color-gray-5)); border-radius: .75rem; }
+  legend { padding: 0 .35rem; font-size: 1.05rem; font-weight: 600; line-height: 1.8; white-space: pre-wrap; }
+  .question-number { color: var(--sl-color-accent-high); margin-right: .5rem; font-variant-numeric: tabular-nums; }
+  .choices { display: grid; gap: .6rem; }
+  .choice { display: flex; align-items: flex-start; gap: .75rem; padding: .8rem; border: 1px solid var(--blog-border, var(--sl-color-gray-5)); border-radius: .4rem; cursor: pointer; }
+  .choice:has(input:checked) { border-color: var(--sl-color-accent); background: var(--sl-color-accent-low); }
+  input[type="radio"] { flex: 0 0 auto; appearance: auto; width: 1.1rem; height: 1.1rem; margin-top: .25rem; accent-color: var(--sl-color-accent); }
+  .memo-label { display: block; margin: 1rem 0 .3rem; color: var(--sl-color-gray-2); font-size: .9rem; }
+  textarea { box-sizing: border-box; width: 100%; resize: vertical; padding: .75rem; font: inherit; color: var(--sl-color-text); background: var(--sl-color-bg); border: 1px solid var(--blog-border, var(--sl-color-gray-5)); border-radius: .4rem; }
+  button { padding: .7rem 1.1rem; border: 1px solid var(--sl-color-gray-4); border-radius: .4rem; font: inherit; background: var(--sl-color-bg); color: var(--sl-color-text); cursor: pointer; }
+  button:focus-visible, textarea:focus-visible, .choice:focus-within { outline: 2px solid var(--sl-color-accent); outline-offset: 3px; }
+  .grade-button { background: var(--sl-color-accent-high); color: var(--sl-color-bg); border-color: var(--sl-color-accent-high); }
+  .exam-actions { display: flex; flex-wrap: wrap; gap: .75rem; }
+  .explanation { margin-top: 1.25rem; border-top: 1px solid var(--blog-border, var(--sl-color-gray-5)); padding-top: 1rem; }
+  .question[data-outcome="correct"] { border-color: #4d9768; }
+  .question[data-outcome="incorrect"] { border-color: #ba655d; }
+  .review-topic { font-weight: 600; }
+  .exam-result { margin: 2rem 0; padding: 1.25rem; background: var(--sl-color-accent-low); border-radius: .6rem; }
+  @media (max-width: 38rem) { .question { padding: .8rem; } .choice { padding: .65rem; } }
+</style>

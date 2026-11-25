@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { createHash } from 'node:crypto';
 import { createMarkdownProcessor } from '@astrojs/markdown-remark';
+import { publishExam } from './publish-exam.mjs';
 
 export const categories = ['js', 'algorithm', 'fe', 'browser', 'cs', 'network', 'server-side', 'tip', 'project'];
 
@@ -82,6 +83,7 @@ export async function publishPendingNotes(root = process.cwd()) {
   const inbox = resolve(root, '.study-inbox');
   const published = [];
   const deleted = [];
+  const exams = [];
   const failed = [];
   for (const file of await readdir(inbox, { withFileTypes: true })) {
     if (!file.isFile() || !/^[a-z0-9]+(?:-[a-z0-9]+)*\.json$/.test(file.name)) continue;
@@ -90,21 +92,22 @@ export async function publishPendingNotes(root = process.cwd()) {
       if (Buffer.byteLength(request) > 200000) throw new Error('게시 요청 크기를 초과했습니다.');
       const input = JSON.parse(request);
       const action = input.action ?? 'create';
-      if (!['create', 'delete'].includes(action)) throw new Error('지원하지 않는 작업입니다.');
-      const path = action === 'delete' ? await deleteNote(input, root) : await saveNote(input, root);
+      if (!['create', 'delete', 'publish-exam'].includes(action)) throw new Error('지원하지 않는 작업입니다.');
+      const path = action === 'publish-exam' ? await publishExam(input, root)
+        : action === 'delete' ? await deleteNote(input, root) : await saveNote(input, root);
       await rm(resolve(inbox, file.name));
-      (action === 'delete' ? deleted : published).push(path);
+      (action === 'publish-exam' ? exams : action === 'delete' ? deleted : published).push(path);
     } catch (error) {
       // 잘못된 요청 하나가 이후의 정상 요청까지 막지 않도록 남겨 두고 계속한다.
       failed.push({ file: file.name, reason: error.message });
     }
   }
-  return { published, deleted, failed };
+  return { published, deleted, exams, failed };
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   const result = await publishPendingNotes();
-  const count = result.published.length + result.deleted.length;
+  const count = result.published.length + result.deleted.length + result.exams.length;
   await writeFile(process.env.GITHUB_OUTPUT, `count=${count}\n`, { flag: 'a' });
   console.log(JSON.stringify(result, null, 2));
   if (!count && result.failed.length) process.exitCode = 1;

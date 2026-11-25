@@ -32,6 +32,7 @@ export default defineConfig({
       sidebar: [
         { label: "Home", slug: "index" },
         { label: "Roadmap", slug: "roadmap" },
+        { label: "복습 시험", link: "/exams/" },
         {
           label: "Engineering",
           items: engineering,

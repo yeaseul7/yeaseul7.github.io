@@ -1,0 +1,13 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import PracticeExam from '../../components/PracticeExam.astro';
+import { validateExam } from '../../utils/exam.mjs';
+export function getStaticPaths() {
+  return Object.entries(import.meta.glob('../../data/exams/*.json', { eager: true, import: 'default' }))
+    .map(([path, data]) => ({ params: { slug: path.split('/').pop()!.replace(/\.json$/, '') }, props: { exam: validateExam(data) } }));
+}
+const { exam } = Astro.props;
+---
+<StarlightPage frontmatter={{ title: exam.title, description: `${exam.questions.length}문항으로 이해도를 확인하고 오답을 복습하세요.`, tableOfContents: false }}>
+  <PracticeExam exam={exam} slug={Astro.params.slug!} />
+</StarlightPage>

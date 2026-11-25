@@ -1,0 +1,16 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import { validateExam } from '../../utils/exam.mjs';
+const exams = Object.entries(import.meta.glob('../../data/exams/*.json', { eager: true, import: 'default' }))
+  .map(([path, data]) => ({ slug: path.split('/').pop()!.replace(/\.json$/, ''), ...validateExam(data) }));
+---
+<StarlightPage frontmatter={{ title: '복습 시험', description: '공부한 내용을 직접 풀고 채점하는 복습 시험입니다.', tableOfContents: false }}>
+  <p>PDF로 보던 문제를 여기서 풀어 보세요. 채점 후 보기별 해설과 복습할 개념을 확인할 수 있습니다.</p>
+  <div class="exam-list">
+    {exams.map((exam) => <article><h2><a href={`/exams/${exam.slug}/`}>{exam.title}</a></h2><p>{exam.questions.length}문항 · 객관식 · 해설 포함</p><a href={`/exams/${exam.slug}/`}>시험 풀기</a> · <a href={`/exams/${exam.slug}/questions.pdf`} download>문제지 PDF</a></article>)}
+    {!exams.length && <p>아직 등록된 시험이 없습니다.</p>}
+  </div>
+  <h2>새 시험 올리기</h2>
+  <p>학습 기록 플러그인에 글이나 시험지 PDF를 전달하고 “온라인으로 풀 수 있게 블로그에 올려 줘”라고 요청하세요. 문항과 해설을 확인한 뒤 이 목록에 등록됩니다.</p>
+</StarlightPage>
+<style>.exam-list { display: grid; gap: 1rem; margin: 2rem 0; }.exam-list article { border: 1px solid var(--blog-border, var(--sl-color-gray-5)); border-radius: .6rem; padding: 1.2rem; }.exam-list h2 { margin-top: 0; font-size: 1.2rem; }</style>
