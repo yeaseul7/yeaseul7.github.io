@@ -1,0 +1,56 @@
+name: Publish study note
+
+on:
+  push:
+    branches: [main]
+    paths: ['.study-inbox/*.json']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+# 대기 실행이 합쳐져도 최신 main에서 미처리 요청 전체를 가져온다.
+concurrency:
+  group: publish-study-note
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.12.0
+          cache: npm
+      - run: npm ci
+      - run: node --test scripts/publish-study-note.test.mjs
+      - name: Validate and create notes
+        id: notes
+        run: node scripts/publish-study-note.mjs
+      - if: steps.notes.outputs.count != '0'
+        run: npm run lint
+      - if: steps.notes.outputs.count != '0'
+        run: npm run build
+      - name: Commit checked notes
+        if: steps.notes.outputs.count != '0'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A -- src/content/docs .study-inbox
+          git commit -m "docs: publish checked study notes"
+          git push origin HEAD:main
+      # GITHUB_TOKEN의 push는 배포 workflow를 실행하지 않으므로 명시적으로 요청한다.
+      - name: Request blog deployment
+        if: steps.notes.outputs.count != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy.yml --ref main
+      - name: Report
+        if: steps.notes.outputs.count != '0'
+        run: echo '학습 글을 저장하고 배포를 요청했습니다. Deploy to GitHub Pages 실행 결과를 확인하세요.' >> "$GITHUB_STEP_SUMMARY"

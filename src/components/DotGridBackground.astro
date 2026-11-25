@@ -87,12 +87,12 @@
       if (reduceMotion.matches) restart();
     }, { passive: true });
 
-    const movePointer = (event) => {
+    const movePointer = (event: MouseEvent) => {
       target.x = event.clientX;
       target.y = event.clientY;
     };
 
-    if ('PointerEvent' in window) {
+    if (typeof PointerEvent !== 'undefined') {
       window.addEventListener('pointermove', movePointer, { passive: true });
     } else {
       window.addEventListener('mousemove', movePointer, { passive: true });

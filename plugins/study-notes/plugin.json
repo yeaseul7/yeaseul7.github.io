@@ -1,0 +1,24 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "study-notes",
+  "version": "1.0.0",
+  "description": "공부한 내용을 검토하고 모르는 부분·핵심·복습 질문을 정리해 GitHub 블로그에 게시합니다.",
+  "extensions": {
+    "com.openai": {
+      "apps": "./.app.json",
+      "interface": {
+        "displayName": "학습 기록",
+        "shortDescription": "대화로 공부하고 검증·복습·블로그 게시",
+        "longDescription": "현재 대화의 실제 질문과 오해를 중심으로 복습 글을 만들고 공식 자료와 대조한 뒤 GitHub 블로그에 제출합니다.",
+        "category": "Productivity",
+        "capabilities": [
+          "Read",
+          "Write"
+        ],
+        "defaultPrompt": [
+          "오늘 공부한 내용을 검토해서 블로그에 올려 줘."
+        ]
+      }
+    }
+  }
+}
