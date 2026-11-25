@@ -30,7 +30,7 @@ export function validateExam(value) {
   };
 }
 
-/** @param {Exam} exam @param {(number|null)[]} answers */
+/** @param {{questions: {answer: number}[]}} exam @param {(number|null)[]} answers */
 export function gradeExam(exam, answers) {
   if (!Array.isArray(answers) || answers.length !== exam.questions.length
     || answers.some((v) => v !== null && (!Number.isInteger(v) || v < 0 || v > 3))) {
@@ -41,7 +41,7 @@ export function gradeExam(exam, answers) {
   return { results, correct, total: results.length, answered: answers.filter((v) => v !== null).length };
 }
 
-/** @param {Exam} exam @returns {{answers: (number|null)[], notes: string[], graded: boolean}} */
+/** @param {{questions: {answer: number}[]}} exam @returns {{answers: (number|null)[], notes: string[], graded: boolean}} */
 export function restoreAttempt(exam, raw) {
   const empty = { answers: exam.questions.map(() => null), notes: exam.questions.map(() => ''), graded: false };
   if (!raw) return empty;
