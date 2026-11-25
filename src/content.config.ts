@@ -9,6 +9,7 @@ export const collections = {
     schema: docsSchema({
       extend: z.object({
         updatedAt: z.coerce.date().optional(),
+        nocomment: z.boolean().optional(),
       }),
     }),
   }),

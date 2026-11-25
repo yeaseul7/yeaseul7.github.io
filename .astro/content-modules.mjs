@@ -51,7 +51,6 @@ export default new Map([
 ["src/content/docs/network/network.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Fnetwork%2Fnetwork.mdx&astroContentModuleFlag=true")],
 ["src/content/docs/network/protocol.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Fnetwork%2Fprotocol.mdx&astroContentModuleFlag=true")],
 ["src/content/docs/project/about.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Fproject%2Fabout.mdx&astroContentModuleFlag=true")],
-["src/content/docs/project/paw-science.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Fproject%2Fpaw-science.mdx&astroContentModuleFlag=true")],
 ["src/content/docs/retrospect/gdsc.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Fretrospect%2Fgdsc.mdx&astroContentModuleFlag=true")],
 ["src/content/docs/retrospect/matchichi.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Fretrospect%2Fmatchichi.mdx&astroContentModuleFlag=true")],
 ["src/content/docs/retrospect/retro2025.mdx", () => import("astro:content-layer-deferred-module?astro%3Acontent-layer-deferred-module=&fileName=src%2Fcontent%2Fdocs%2Fretrospect%2Fretro2025.mdx&astroContentModuleFlag=true")],

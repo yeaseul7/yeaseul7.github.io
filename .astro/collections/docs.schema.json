@@ -646,6 +646,9 @@
         "updatedAt": {
           "type": "string",
           "format": "date-time"
+        },
+        "nocomment": {
+          "type": "boolean"
         }
       }
     }

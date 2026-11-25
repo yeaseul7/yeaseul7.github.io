@@ -1,7 +1,6 @@
 ---
 title: 쎄옹의 개발 블로그
 updatedAt: 2026-07-16
-nocomment: true
 tableOfContents: false
 prev: false
 next: false
@@ -10,47 +9,6 @@ sidebar:
 description: Frontend 개발자 이예슬의 개발 블로그. React, TypeScript, Next.js와 웹 개발에 대한 글을 공유합니다.
 ---
 
-import { getCollection } from "astro:content";
+import HomePage from "../../components/HomePage.astro";
 
-export const latestPosts = (await getCollection("docs"))
-  .filter(({ id, data }) =>
-    id !== "index" &&
-    id !== "about" &&
-    id !== "roadmap" &&
-    !id.startsWith("secret/") &&
-    data.updatedAt
-  )
-  .sort((a, b) => b.data.updatedAt.getTime() - a.data.updatedAt.getTime())
-  .slice(0, 3);
-
-<aside class="roadmap-entry" aria-label="학습 로드맵 안내">
-  <strong>어디서부터 공부할지 고민이라면</strong>
-  <p>JavaScript부터 React·Next.js, 성능과 배포까지 11단계로 이어서 읽어보세요.</p>
-  <a href="/roadmap/">학습 로드맵 시작하기 <span aria-hidden="true">→</span></a>
-</aside>
-
-<section class="recent-posts home-page" id="recent-posts">
-  <div class="home-section-heading">
-    <span class="home-eyebrow">LATEST NOTES</span>
-  </div>
-
-  <div class="post-list">
-    {latestPosts.map(({ id, data }, index) => (
-      <a class={`post-card${index === 0 ? " post-card--featured" : ""}`} href={`/${id}/`}>
-        <h3>{data.title}</h3>
-        <p>{data.description}</p>
-        <div class="post-card__meta">
-          <time datetime={data.updatedAt.toISOString()}>
-            {data.updatedAt.toLocaleDateString("ko-KR", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-              timeZone: "UTC",
-            })}
-          </time>
-          <strong>READ ARTICLE <span aria-hidden="true">→</span></strong>
-        </div>
-      </a>
-    ))}
-  </div>
-</section>
+<HomePage />

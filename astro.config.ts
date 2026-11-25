@@ -1,3 +1,4 @@
+import { engineering } from "./src/data/engineering";
 import starlight from "@astrojs/starlight";
 import { defineConfig } from "astro/config";
 import starlightThemeNext from "starlight-theme-next";
@@ -18,70 +19,49 @@ export default defineConfig({
   integrations: [
     starlight({
       credits: false,
+      locales: { root: { label: "한국어", lang: "ko" } },
       lastUpdated: false,
       plugins: [starlightThemeNext()],
       customCss: ["./src/styles/custom.css"],
       components: {
+        Head: "./src/components/SeoHead.astro",
         Footer: "./src/components/CommentsFooter.astro",
         LastUpdated: "./src/components/UpdatedAt.astro",
         PageFrame: "./src/components/BlogPageFrame.astro",
       },
       sidebar: [
+        { label: "Home", slug: "index" },
+        { label: "Roadmap", slug: "roadmap" },
         {
-          label: "Home",
-          items: ["index", "roadmap", "about"],
-        },
-
-        {
-          label: "Javascript",
-          collapsed: true,
-          items: [{ autogenerate: { directory: "js" } }],
+          label: "Engineering",
+          items: engineering,
         },
         {
-          label: "Algorithm",
-          collapsed: true,
-          items: [{ autogenerate: { directory: "algorithm" } }],
+          label: "Case Studies",
+          items: [
+            {
+              label: "Troubleshooting",
+              collapsed: true,
+              items: ["fe/infinity-scroll"],
+            },
+            {
+              label: "Performance",
+              collapsed: true,
+              items: ["fe/browser-performance"],
+            },
+            {
+              label: "Architecture",
+              collapsed: true,
+              items: [{ autogenerate: { directory: "project" } }],
+            },
+          ],
         },
         {
-          label: "Frontend",
-          collapsed: true,
-          items: [{ autogenerate: { directory: "fe" } }],
-        },
-        {
-          label: "Browser",
-          collapsed: true,
-          items: [{ autogenerate: { directory: "browser" } }],
-        },
-        {
-          label: "Computer Science",
-          collapsed: true,
-          items: [{ autogenerate: { directory: "cs" } }],
-        },
-        {
-          label: "Network",
-          collapsed: true,
-          items: [{ autogenerate: { directory: "network" } }],
-        },
-        {
-          label: "Server",
-          collapsed: true,
-          items: [{ autogenerate: { directory: "server-side" } }],
-        },
-        {
-          label: "Tip",
-          collapsed: true,
-          items: [{ autogenerate: { directory: "tip" } }],
-        },
-        {
-          label: "Project",
-          collapsed: true,
-          items: [{ autogenerate: { directory: "project" } }],
-        },
-        {
-          label: "Retrospect",
+          label: "Retrospective",
           collapsed: true,
           items: [{ autogenerate: { directory: "retrospect" } }],
         },
+        { label: "About", slug: "about" },
       ],
       social: [
         {
@@ -127,14 +107,6 @@ export default defineConfig({
           attrs: {
             name: "naver-site-verification",
             content: "6724760dddce453fb49399f0a1133ab8c91d000f",
-          },
-        },
-        {
-          tag: "meta",
-          attrs: {
-            property: "og:description",
-            content:
-              "Frontend 개발자 이예슬의 개발 블로그. React, TypeScript, Next.js를 주력으로 사용하며 웹 개발과 프론트엔드 기술에 대한 글을 공유합니다.",
           },
         },
         {

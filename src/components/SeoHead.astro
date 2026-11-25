@@ -1,0 +1,60 @@
+---
+const { entry, head, lang } = Astro.locals.starlightRoute;
+const site = Astro.site!;
+const canonical = new URL(Astro.url.pathname, site).href;
+const isHome = Astro.url.pathname === "/";
+const isNoindex = head.some(({ tag, attrs }) => tag === "meta"
+  && attrs?.name === "robots" && String(attrs.content).includes("noindex"));
+const isArticle = !["/", "/about/", "/roadmap/", "/404.html"].includes(Astro.url.pathname) && !isNoindex;
+const meta = (key: string) => head.find(({ tag, attrs }) => tag === "meta"
+  && (attrs?.name === key || attrs?.property === key))?.attrs?.content;
+const image = String(meta("og:image") || new URL("/og-default.png", site).href);
+const description = String(meta("description") || "");
+const author = {
+  "@type": "Person",
+  name: "이예슬",
+  url: new URL("/about/", site).href,
+  sameAs: ["https://github.com/yeaseul7"],
+};
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": isArticle ? "BlogPosting" : isHome ? "WebSite" : "WebPage",
+  url: canonical,
+  name: entry.data.title,
+  description,
+  inLanguage: lang,
+  ...(isArticle ? {
+    headline: entry.data.title,
+    author,
+    image,
+    ...(entry.data.updatedAt ? { dateModified: entry.data.updatedAt.toISOString() } : {}),
+    mainEntityOfPage: { "@type": "WebPage", "@id": canonical },
+  } : isHome ? { author } : {}),
+};
+const pageHead = head.map((item) => {
+  if (item.tag === "meta" && item.attrs?.property === "og:locale") {
+    return { ...item, attrs: { ...item.attrs, content: "ko_KR" } };
+  }
+  if (item.tag === "meta" && item.attrs?.property === "og:type" && !isArticle) {
+    return { ...item, attrs: { ...item.attrs, content: "website" } };
+  }
+  return item;
+});
+---
+
+{pageHead.map(({ tag: Tag, attrs, content }) => <Tag {...attrs} set:html={content} />)}
+{!meta("og:image") && <>
+  <meta property="og:image" content={image} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Sseong Dev" />
+</>}
+{!meta("twitter:image") && <meta name="twitter:image" content={image} />}
+{!meta("author") && !isNoindex && <meta name="author" content={author.name} />}
+{isArticle && entry.data.updatedAt && !meta("article:modified_time") &&
+  <meta property="article:modified_time" content={entry.data.updatedAt.toISOString()} />}
+{!isNoindex && <script
+  is:inline
+  type="application/ld+json"
+  set:html={JSON.stringify(structuredData).replace(/</g, "\\u003c")}
+/>}

@@ -1,6 +1,7 @@
 ---
 import DefaultFooter from "@astrojs/starlight/components/Footer.astro";
 import SiteFooter from "./SiteFooter.astro";
+import PageViews from "./PageViews.astro";
 
 const { starlightRoute } = Astro.locals;
 const data = starlightRoute.entry.data as { title: string; nocomment?: boolean };
@@ -8,10 +9,12 @@ const isHome = Astro.url.pathname === "/";
 const isPdfOnly = Astro.url.pathname === "/about/";
 ---
 
+<PageViews />
 {isHome || isPdfOnly ? null : <DefaultFooter />}
 {
   data.nocomment || isPdfOnly ? null : (
     <div id="comments" class="comments">
+      {isHome && <h2 class="guestbook-title">Welcome 🤗</h2>}
       <script
         is:inline
         set:html={`
@@ -32,3 +35,11 @@ const isPdfOnly = Astro.url.pathname === "/about/";
   )
 }
 {isPdfOnly ? null : <SiteFooter />}
+
+<style>
+  .guestbook-title {
+    margin: 0 0 1rem;
+    font-size: 1rem;
+    font-weight: 500;
+  }
+</style>

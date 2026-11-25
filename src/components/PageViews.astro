@@ -1,0 +1,53 @@
+---
+const pathname = Astro.url.pathname;
+const isPublic = !pathname.startsWith("/secret/");
+const site = Astro.site!;
+const counter = new URL(`${site.host}${pathname.replace(/\/$/, "")}.svg`, "https://hits.sh/");
+counter.search = new URLSearchParams({
+  style: "flat-square",
+  label: "조회",
+  color: "transparent",
+  labelColor: "transparent",
+}).toString();
+---
+
+{isPublic && (
+  <p class="page-views" data-page-views hidden>
+    <img
+      data-counter-url={counter.href}
+      data-counter-host={site.hostname}
+      alt="이 페이지의 누적 조회수"
+      height="20"
+      referrerpolicy="no-referrer"
+    />
+  </p>
+)}
+
+<script>
+  for (const container of document.querySelectorAll<HTMLElement>("[data-page-views]")) {
+    const image = container.querySelector<HTMLImageElement>("img");
+    if (!image || location.hostname !== image.dataset.counterHost) continue;
+
+    // shortcut: 외부 카운터의 이미지 요청 수다. 정확한 방문 분석은 GA4에서 확인한다.
+    image.addEventListener("load", () => { container.hidden = false; }, { once: true });
+    image.src = image.dataset.counterUrl!;
+  }
+</script>
+
+<style>
+  .page-views {
+    margin: 1.5rem 0;
+  }
+
+  .page-views img {
+    display: block;
+    height: 20px;
+    width: auto;
+    border-radius: 0;
+    filter: brightness(0.6);
+  }
+
+  :global([data-theme="light"]) .page-views img {
+    filter: brightness(0.42);
+  }
+</style>

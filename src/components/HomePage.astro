@@ -1,0 +1,29 @@
+---
+import { getCollection } from "astro:content";
+
+const posts = await getCollection("docs");
+const latestPosts = posts
+  .filter(({ id, data }) => !["index", "about", "roadmap"].includes(id)
+    && !id.startsWith("secret/") && data.updatedAt)
+  .sort((a, b) => b.data.updatedAt!.getTime() - a.data.updatedAt!.getTime())
+  .slice(0, 3);
+---
+
+<div class="home-page">
+  <section class="home-section" id="recent-posts" aria-labelledby="latest-title">
+    <h1 id="latest-title">recent</h1>
+    <div class="post-list">
+      {latestPosts.map(({ id, data }) => (
+        <article class="post-entry">
+          <a href={`/${id}/`}>
+            <h2>{data.title}</h2>
+            <p>{data.description}</p>
+          </a>
+          <time datetime={data.updatedAt!.toISOString()}>
+            {data.updatedAt!.toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" })}
+          </time>
+        </article>
+      ))}
+    </div>
+  </section>
+</div>
