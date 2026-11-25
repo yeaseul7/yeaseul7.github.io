@@ -75,14 +75,52 @@
   }
 
   .sl-markdown-content:not(:has(.home-page)):not(:has(.pdf-only)) {
-    font-family: Georgia, "AppleMyungjo", "Batang", serif;
-    font-size: 1.15rem;
-    line-height: 1.9;
+    --sl-content-gap-y: 1.5rem;
+    font-family: var(--sl-font);
+    font-size: 1.125rem;
+    line-height: 1.85;
+    word-break: keep-all;
     overflow-wrap: break-word;
+  }
+
+  main:not(:has(.home-page)):not(:has(.pdf-only)) {
+    --sl-text-h1: clamp(2rem, 4vw, 2.75rem);
+    --sl-text-h2: 1.75rem;
+    --sl-text-h3: 1.375rem;
+    --sl-text-h4: 1.125rem;
+    --sl-line-height-headings: 1.35;
+  }
+
+  main:not(:has(.home-page)):not(:has(.pdf-only)) > .content-panel h1 {
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+    text-wrap: balance;
+  }
+
+  main:not(:has(.home-page)):not(:has(.pdf-only)) > .content-panel:first-of-type {
+    padding-bottom: 3rem;
+  }
+
+  .sl-markdown-content:not(:has(.home-page)):not(:has(.pdf-only)) > .sl-heading-wrapper {
+    margin-block: 3.5rem 1.25rem;
+  }
+
+  .sl-markdown-content:not(:has(.home-page)):not(:has(.pdf-only)) > :is(.level-h3, .level-h4) {
+    margin-top: 2.5rem;
+  }
+
+  .sl-markdown-content:not(:has(.home-page)):not(:has(.pdf-only)) > .sl-heading-wrapper:first-child {
+    margin-top: 0;
   }
 
   .sl-markdown-content :is(h1, h2, h3, h4, th) {
     font-family: var(--sl-font);
+  }
+
+  .sl-markdown-content :is(h2, h3, h4) {
+    font-weight: 700;
   }
 
   .sl-markdown-content :is(pre, code) {
@@ -160,13 +198,14 @@
 
   .home-page .post-entry h2 {
     margin: 0;
-    font-size: clamp(1.15rem, 3vw, 1.45rem);
+    font-size: clamp(1.25rem, 3vw, 1.5rem);
     font-weight: 700;
     line-height: 1.4;
     letter-spacing: -0.025em;
+    word-break: keep-all;
   }
 
-  .post-entry a:hover h3 {
+  .post-entry a:hover h2 {
     text-decoration: underline;
     text-underline-offset: 4px;
   }
@@ -176,10 +215,10 @@
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     overflow: hidden;
-    margin: 0.6rem 0 0;
+    margin: 1rem 0 0;
     color: var(--sl-color-gray-2);
-    font-size: 0.95rem;
-    line-height: 1.6;
+    font-size: 1rem;
+    line-height: 1.7;
   }
 
   .post-entry time {
@@ -280,7 +319,7 @@
     }
 
     .sl-markdown-content:not(:has(.home-page)):not(:has(.pdf-only)) {
-      font-size: 1.05rem;
+      font-size: 1.0625rem;
     }
   }
 

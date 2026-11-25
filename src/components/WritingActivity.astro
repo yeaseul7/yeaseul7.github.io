@@ -1,0 +1,164 @@
+---
+import { buildWritingActivity } from "../utils/writing-activity";
+
+interface Props {
+  dates: Date[];
+}
+
+const dateFormat = new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Seoul" });
+const today = dateFormat.format(new Date());
+const currentYear = Number(today.slice(0, 4));
+const firstYear = Math.min(currentYear, ...Astro.props.dates.map((date) => Number(dateFormat.format(date).slice(0, 4))));
+const activities = Array.from({ length: currentYear - firstYear + 1 }, (_, index) =>
+  buildWritingActivity(Astro.props.dates, firstYear + index, today));
+const current = activities.at(-1)!;
+---
+
+<figure class="writing-activity" data-writing-activity>
+  <figcaption>
+    <div class="year-navigation">
+      <button type="button" data-year-prev aria-label="이전 연도" disabled={activities.length === 1}>&lt;</button>
+      <output data-year-label aria-live="polite">{currentYear}</output>
+      <button type="button" data-year-next aria-label="다음 연도" disabled>&gt;</button>
+    </div>
+    <span data-year-total>{current.total}편</span>
+  </figcaption>
+  {activities.map((activity) => (
+    <div class="year-chart" data-activity-year={activity.year} data-total={activity.total} hidden={activity.year !== currentYear}>
+      <svg viewBox={`0 0 ${activity.weeks * 12} 108`} role="img" aria-label={`${activity.year}년 공개 글 ${activity.total}편, 수정일 기준`}>
+        <title>{activity.year}년 공개 글 {activity.total}편, 수정일 기준</title>
+        {activity.days.flatMap(({ date }, index) => date?.endsWith("-01")
+          ? [<text x={Math.floor(index / 7) * 12} y="12">{Number(date.slice(5, 7))}월</text>] : [])}
+        {activity.days.map(({ date, count, future }, index) => (
+          <rect
+            x={Math.floor(index / 7) * 12}
+            y={24 + index % 7 * 12}
+            width="9"
+            height="9"
+            rx="1.5"
+            data-date={date ?? undefined}
+            data-count={count}
+            class:list={[`level-${Math.min(count, 4)}`, { outside: !date, future }]}
+          >
+            {date && <title>{date} · {future ? "예정일" : `${count}편`}</title>}
+          </rect>
+        ))}
+      </svg>
+    </div>
+  ))}
+  <p class="activity-note">수정일 기준</p>
+</figure>
+
+<script>
+  for (const figure of document.querySelectorAll<HTMLElement>("[data-writing-activity]")) {
+    const panels = [...figure.querySelectorAll<HTMLElement>("[data-activity-year]")];
+    const previous = figure.querySelector<HTMLButtonElement>("[data-year-prev]")!;
+    const next = figure.querySelector<HTMLButtonElement>("[data-year-next]")!;
+    const yearLabel = figure.querySelector<HTMLOutputElement>("[data-year-label]")!;
+    const total = figure.querySelector<HTMLElement>("[data-year-total]")!;
+    let selected = panels.length - 1;
+
+    function show(index: number) {
+      if (index < 0 || index >= panels.length) return;
+      selected = index;
+      panels.forEach((panel, i) => { panel.hidden = i !== selected; });
+      yearLabel.value = panels[selected].dataset.activityYear!;
+      total.textContent = `${panels[selected].dataset.total}편`;
+      previous.disabled = selected === 0;
+      next.disabled = selected === panels.length - 1;
+    }
+
+    previous.addEventListener("click", () => show(selected - 1));
+    next.addEventListener("click", () => show(selected + 1));
+  }
+</script>
+
+<style>
+  .writing-activity {
+    margin: 1.5rem 0 2.5rem;
+  }
+
+  figcaption {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    color: var(--sl-color-gray-2);
+    font-size: 0.8rem;
+  }
+
+  .year-navigation {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .year-navigation > * {
+    margin: 0;
+  }
+
+  .year-navigation button {
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    background: none;
+    border: 0;
+    color: var(--sl-color-text);
+    cursor: pointer;
+    font: inherit;
+  }
+
+  .year-navigation button:disabled {
+    opacity: 0.25;
+    cursor: default;
+  }
+
+  .year-navigation button:focus-visible {
+    outline: 2px solid var(--sl-color-accent);
+    outline-offset: 2px;
+  }
+
+  .year-navigation output {
+    min-width: 2.5rem;
+    text-align: center;
+    color: var(--sl-color-text);
+  }
+
+  .year-chart {
+    margin: 0;
+    width: 100%;
+  }
+
+  .year-chart svg {
+    display: block;
+    width: 100%;
+    max-width: none;
+    height: auto;
+  }
+
+  text {
+    fill: var(--sl-color-gray-2);
+    font-size: 10px;
+    font-family: var(--sl-font);
+  }
+
+  .level-0 { fill: #ebedf0; }
+  .level-1 { fill: #9be9a8; }
+  .level-2 { fill: #40c463; }
+  .level-3 { fill: #30a14e; }
+  .level-4 { fill: #216e39; }
+  :global([data-theme="dark"]) .level-0 { fill: #2b2b2b; }
+  :global([data-theme="dark"]) .level-1 { fill: #0e4429; }
+  :global([data-theme="dark"]) .level-2 { fill: #006d32; }
+  :global([data-theme="dark"]) .level-3 { fill: #26a641; }
+  :global([data-theme="dark"]) .level-4 { fill: #39d353; }
+  .outside { visibility: hidden; }
+  .future { opacity: 0.35; }
+
+  .activity-note {
+    margin: 0.25rem 0 0;
+    color: var(--sl-color-gray-2);
+    font-size: 0.7rem;
+    text-align: right;
+  }
+</style>
