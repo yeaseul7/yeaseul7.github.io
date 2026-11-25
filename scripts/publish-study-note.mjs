@@ -1,6 +1,7 @@
 import { access, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { createHash } from 'node:crypto';
 import { createMarkdownProcessor } from '@astrojs/markdown-remark';
 
 export const categories = ['js', 'algorithm', 'fe', 'browser', 'cs', 'network', 'server-side', 'tip', 'project'];
@@ -60,29 +61,51 @@ export async function saveNote(input, root = process.cwd()) {
   throw new Error('같은 경로의 MDX 글이 이미 있습니다.');
 }
 
+export async function deleteNote(input, root = process.cwd()) {
+  const { category, slug, extension, sha } = input;
+  if (![...categories, 'retrospect', 'game'].includes(category)
+    || typeof slug !== 'string' || !/^[a-z0-9][a-z0-9_-]{0,99}$/.test(slug)
+    || !['md', 'mdx'].includes(extension)
+    || typeof sha !== 'string' || !/^[a-f0-9]{40}$/.test(sha)) {
+    throw new Error('삭제 대상의 카테고리·파일명·확장자·SHA를 확인하세요.');
+  }
+  const path = `src/content/docs/${category}/${slug}.${extension}`;
+  const target = resolve(root, path);
+  const content = await readFile(target);
+  const currentSha = createHash('sha1').update(`blob ${content.length}\0`).update(content).digest('hex');
+  if (sha !== currentSha) throw new Error('확인 후 글이 변경되어 삭제하지 않았습니다. 최신 글을 확인하세요.');
+  await rm(target);
+  return path;
+}
+
 export async function publishPendingNotes(root = process.cwd()) {
   const inbox = resolve(root, '.study-inbox');
   const published = [];
+  const deleted = [];
   const failed = [];
   for (const file of await readdir(inbox, { withFileTypes: true })) {
     if (!file.isFile() || !/^[a-z0-9]+(?:-[a-z0-9]+)*\.json$/.test(file.name)) continue;
     try {
       const request = await readFile(resolve(inbox, file.name), 'utf8');
       if (Buffer.byteLength(request) > 200000) throw new Error('게시 요청 크기를 초과했습니다.');
-      const path = await saveNote(JSON.parse(request), root);
+      const input = JSON.parse(request);
+      const action = input.action ?? 'create';
+      if (!['create', 'delete'].includes(action)) throw new Error('지원하지 않는 작업입니다.');
+      const path = action === 'delete' ? await deleteNote(input, root) : await saveNote(input, root);
       await rm(resolve(inbox, file.name));
-      published.push(path);
+      (action === 'delete' ? deleted : published).push(path);
     } catch (error) {
       // 잘못된 요청 하나가 이후의 정상 요청까지 막지 않도록 남겨 두고 계속한다.
       failed.push({ file: file.name, reason: error.message });
     }
   }
-  return { published, failed };
+  return { published, deleted, failed };
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   const result = await publishPendingNotes();
-  await writeFile(process.env.GITHUB_OUTPUT, `count=${result.published.length}\n`, { flag: 'a' });
+  const count = result.published.length + result.deleted.length;
+  await writeFile(process.env.GITHUB_OUTPUT, `count=${count}\n`, { flag: 'a' });
   console.log(JSON.stringify(result, null, 2));
-  if (!result.published.length && result.failed.length) process.exitCode = 1;
+  if (!count && result.failed.length) process.exitCode = 1;
 }

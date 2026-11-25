@@ -3,7 +3,8 @@ import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
-import { prepareNote, publishPendingNotes, saveNote } from './publish-study-note.mjs';
+import { execFileSync } from 'node:child_process';
+import { deleteNote, prepareNote, publishPendingNotes, saveNote } from './publish-study-note.mjs';
 
 const body = '## 실행 순서를 왜 예측하기 어려웠을까\n\n실행 문맥과 큐의 역할을 구분한다. [MDN](https://developer.mozilla.org/)의 설명과 대조한다.';
 const input = { category: 'js', slug: 'event-loop', title: '이벤트 루프: "순서"', description: '학습\n복습', body };
@@ -73,6 +74,60 @@ test('정상 게시 요청은 처리하고 잘못된 요청은 보존한다', as
     const retry = await publishPendingNotes(root);
     assert.equal(retry.published.length, 0);
     assert.equal(retry.failed.length, 1);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('확인한 SHA의 MD와 MDX만 삭제하고 다른 파일은 보존한다', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'study-delete-'));
+  try {
+    await mkdir(join(root, 'src/content/docs/js'), { recursive: true });
+    const md = join(root, 'src/content/docs/js/event_loop.md');
+    const mdx = join(root, 'src/content/docs/js/event_loop.mdx');
+    await writeFile(md, '확인한 글');
+    await writeFile(mdx, '다른 글');
+    const sha = execFileSync('git', ['hash-object', '--', md], { encoding: 'utf8' }).trim();
+    const request = { category: 'js', slug: 'event_loop', extension: 'md', sha };
+    for (const patch of [{ category: '../secret' }, { slug: '../index' }, { extension: '../md' }, { sha: '0'.repeat(40) }]) {
+      await assert.rejects(deleteNote({ ...request, ...patch }, root));
+    }
+    assert.equal(await readFile(md, 'utf8'), '확인한 글');
+    assert.equal(await deleteNote(request, root), 'src/content/docs/js/event_loop.md');
+    await assert.rejects(readFile(md), { code: 'ENOENT' });
+    assert.equal(await readFile(mdx, 'utf8'), '다른 글');
+    await assert.rejects(deleteNote(request, root), { code: 'ENOENT' });
+    const mdxSha = execFileSync('git', ['hash-object', '--', mdx], { encoding: 'utf8' }).trim();
+    await deleteNote({ ...request, extension: 'mdx', sha: mdxSha }, root);
+    await assert.rejects(readFile(mdx), { code: 'ENOENT' });
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test('삭제 요청 처리와 변경된 글 보호 및 미지원 작업 거절', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'study-delete-queue-'));
+  try {
+    await mkdir(join(root, '.study-inbox'));
+    const path = await saveNote(input, root);
+    const sha = execFileSync('git', ['hash-object', '--', join(root, path)], { encoding: 'utf8' }).trim();
+    const request = { action: 'delete', category: 'js', slug: 'event-loop', extension: 'md', sha };
+    const queue = join(root, '.study-inbox/delete-event-loop.json');
+    await writeFile(queue, JSON.stringify(request));
+    await writeFile(join(root, path), '확인 후 변경된 내용');
+    const stale = await publishPendingNotes(root);
+    assert.equal(stale.deleted.length, 0);
+    assert.equal(stale.failed.length, 1);
+    assert.ok(await readFile(queue));
+    const newSha = execFileSync('git', ['hash-object', '--', join(root, path)], { encoding: 'utf8' }).trim();
+    await writeFile(queue, JSON.stringify({ ...request, sha: newSha }));
+    await writeFile(join(root, '.study-inbox/unsupported.json'), JSON.stringify({ ...input, action: 'replace' }));
+    const result = await publishPendingNotes(root);
+    assert.deepEqual(result.deleted, [path]);
+    assert.equal(result.published.length, 0);
+    assert.equal(result.failed.length, 1);
+    await assert.rejects(readFile(queue), { code: 'ENOENT' });
+    await assert.rejects(readFile(join(root, path)), { code: 'ENOENT' });
   } finally {
     await rm(root, { recursive: true, force: true });
   }
