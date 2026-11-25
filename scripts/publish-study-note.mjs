@@ -4,7 +4,6 @@ import { pathToFileURL } from 'node:url';
 import { createMarkdownProcessor } from '@astrojs/markdown-remark';
 
 export const categories = ['js', 'algorithm', 'fe', 'browser', 'cs', 'network', 'server-side', 'tip', 'project'];
-export const sections = ['핵심 요약', '내가 몰랐던 부분', '개념과 동작 원리', '예제와 반례', '복습 질문', '검증 근거'];
 
 export async function prepareNote(input) {
   const { category, slug, title, description, body } = input;
@@ -17,35 +16,30 @@ export async function prepareNote(input) {
   }
   if (/^---\s*(?:\r?\n|$)/.test(body)) throw new Error('본문에 frontmatter를 넣지 마세요.');
 
-  // shortcut: 근거의 존재와 문서 구조만 검사한다. 주장과 출처의 일치 여부는 GPT의 자료 대조 단계에서 검토한다.
-  const headings = new Set();
+  // shortcut: 출처 링크의 존재만 검사한다. 글의 깊이와 주장·출처의 일치는 GPT가 자료와 대조해 검토한다.
   let sourceLinks = 0;
-  const text = (node) => node.value ?? (node.children ?? []).map(text).join('');
   const processor = await createMarkdownProcessor({
     syntaxHighlight: false,
     remarkPlugins: [() => (tree) => {
-      let inSources = false;
+      const definitions = new Map(tree.children
+        .filter((node) => node.type === 'definition')
+        .map((node) => [node.identifier.toLowerCase(), node.url]));
       function inspect(node) {
         if (node.type === 'html') throw new Error('코드 블록 밖의 HTML은 허용하지 않습니다.');
         if (node.type === 'link' || node.type === 'image' || node.type === 'definition') {
-          if (!/^https:\/\//i.test(node.url)) throw new Error('링크와 이미지는 HTTPS 절대 주소를 사용하세요.');
+          const anchor = node.type !== 'image' && node.url.startsWith('#');
+          if (!anchor && !/^https:\/\//i.test(node.url)) throw new Error('외부 링크와 이미지는 HTTPS 절대 주소를 사용하세요.');
         }
-        if (inSources && node.type === 'link') sourceLinks++;
+        const url = node.type === 'link' ? node.url
+          : node.type === 'linkReference' ? definitions.get(node.identifier.toLowerCase()) : undefined;
+        if (url && /^https:\/\//i.test(url)) sourceLinks++;
         for (const child of node.children ?? []) inspect(child);
       }
-      for (const node of tree.children) {
-        if (node.type === 'heading' && node.depth <= 2) {
-          inSources = node.depth === 2 && text(node) === '검증 근거';
-          if (node.depth === 2) headings.add(text(node));
-        }
-        inspect(node);
-      }
+      inspect(tree);
     }],
   });
   await processor.render(body);
-  const missing = sections.filter((section) => !headings.has(section));
-  if (missing.length) throw new Error(`필수 항목 누락: ${missing.join(', ')}`);
-  if (!sourceLinks) throw new Error('검증 근거에 확인한 자료의 HTTPS 링크가 필요합니다.');
+  if (!sourceLinks) throw new Error('본문에서 참조한 자료의 HTTPS 링크가 필요합니다.');
   const date = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Seoul' }).format(new Date());
   const frontmatter = `---\ntitle: ${JSON.stringify(title.trim())}\ndescription: ${JSON.stringify(description.trim())}\nupdatedAt: ${date}\n---\n\n`;
   return { path: `src/content/docs/${category}/${slug}.md`, content: frontmatter + body.trim() + '\n' };

@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "study-notes",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "공부한 내용을 검토하고 모르는 부분·핵심·복습 질문을 정리해 GitHub 블로그에 게시합니다.",
   "extensions": {
     "com.openai": {

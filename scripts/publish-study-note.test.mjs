@@ -3,9 +3,9 @@ import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
-import { prepareNote, publishPendingNotes, saveNote, sections } from './publish-study-note.mjs';
+import { prepareNote, publishPendingNotes, saveNote } from './publish-study-note.mjs';
 
-const body = sections.map((section) => `## ${section}\n\n${section === '검증 근거' ? '[MDN](https://developer.mozilla.org/) — 확인 범위 예시' : '학습 내용'}`).join('\n\n');
+const body = '## 실행 순서를 왜 예측하기 어려웠을까\n\n실행 문맥과 큐의 역할을 구분한다. [MDN](https://developer.mozilla.org/)의 설명과 대조한다.';
 const input = { category: 'js', slug: 'event-loop', title: '이벤트 루프: "순서"', description: '학습\n복습', body };
 
 test('메타데이터를 안전하게 인코딩하고 정해진 문서 경로를 생성한다', async () => {
@@ -22,10 +22,18 @@ test('경로 이탈, 허용하지 않은 분류, 크기 초과를 거절한다',
   }
 });
 
-test('코드 블록 속 제목과 링크를 검증 근거로 인정하지 않는다', async () => {
-  await assert.rejects(prepareNote({ ...input, body: `\`\`\`md\n${body}\n\`\`\`` }), /필수 항목 누락/);
+test('코드 블록이나 미사용 참조 정의를 출처로 인정하지 않는다', async () => {
+  await assert.rejects(prepareNote({ ...input, body: `\`\`\`md\n${body}\n\`\`\`` }), /HTTPS 링크/);
   await assert.rejects(prepareNote({ ...input, body: body.replace('[MDN](https://developer.mozilla.org/)', '`MDN`') }), /HTTPS 링크/);
-  await assert.rejects(prepareNote({ ...input, body: body.replace('## 내가 몰랐던 부분', '### 내가 몰랐던 부분') }), /필수 항목 누락/);
+  await assert.rejects(prepareNote({ ...input, body: '본문\n\n[unused]: https://example.com' }), /HTTPS 링크/);
+  await assert.rejects(prepareNote({ ...input, body: '![그림](https://example.com/image.png)' }), /HTTPS 링크/);
+});
+
+test('목차를 자유롭게 구성하고 인라인·참조형 출처와 문서 내 이동을 지원한다', async () => {
+  await prepareNote({ ...input, body });
+  await prepareNote({ ...input, body: '## 왜 격리 방식이 중요할까\n\n[메모리 구조로 이동](#memory)\n\n### 힙과 프로세스\n\n[공식 문서][engine]\n\n[engine]: https://v8.dev/docs' });
+  // 이전 형식의 제출도 계속 처리한다.
+  await prepareNote({ ...input, body: '## 검증 근거\n\n[MDN](https://developer.mozilla.org/)' });
 });
 
 test('HTML과 위험한 링크는 거절하고 코드 속 HTML은 허용한다', async () => {
